@@ -113,8 +113,8 @@ DB_ARCHIVE_HOST=$(awk -F "=" '/DB_ARCHIVE_HOST/ {print $2}' $INI | tr -d ' ')
 DB_ARCHIVE_PORT=$(awk -F "=" '/DB_ARCHIVE_PORT/ {print $2}' $INI | tr -d ' ')
 DB_ARCHIVE_USER=$(awk -F "=" '/DB_ARCHIVE_USER/ {print $2}' $INI | tr -d ' ')
 DB_ARCHIVE_PASS=$(awk -F "=" '/RDB_ARCHIVE_PASS/ {print $2}' $INI | tr -d ' ')
-printf "[DATABASE_ARCHIVE]\n  USER = $DB_ARCHIVE_USER \n  HOST = $DB_ARCHIVE_HOST\n  PORT = $DB_ARCHIVE_PORT\n  PASS = $DB_ARCHIVE_PASS" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
-printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_ARCHIVE]\n  USER = $DB_ARCHIVE_USER \n  HOST = $DB_ARCHIVE_HOST\n  PORT = $DB_ARCHIVE_PORT\n  PASS = $DB_ARCHIVE_PASS\n" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS\n" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
