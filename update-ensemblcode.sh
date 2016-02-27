@@ -103,6 +103,8 @@ RW_USER=$(awk -F "=" '/RW_USER/ {print $2}' $INI | tr -d ' ')
 RW_PASS=$(awk -F "=" '/RW_PASS/ {print $2}' $INI | tr -d ' ')
 printf "[DATABASE_SESSION]\n  USER = $RW_USER \n  HOST = $DB_HOST\n  PORT = $DB_PORT\n  PASS = $RW_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
+DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
+DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
 RO_USER=$(awk -F "=" '/RO_USER/ {print $2}' $INI | tr -d ' ')
 RO_PASS=$(awk -F "=" '/RO_PASS/ {print $2}' $INI | tr -d ' ')
 perl -p -i -e "s/^\s*DATABASE_HOST\s*=.*/DATABASE_HOST = $DB_HOST/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
