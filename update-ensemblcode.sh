@@ -95,7 +95,9 @@ DEBUG_JS="  \\\$SiteDefs::ENSEMBL_DEBUG_JS = 1;"
 DEBUG_CSS="  \\\$SiteDefs::ENSEMBL_DEBUG_CSS = 1;"
 DEBUG_IMAGES="  \\\$SiteDefs::ENSEMBL_DEBUG_IMAGES = 1;"
 SKIP_RSS="  \\\$SiteDefs::ENSEMBL_SKIP_RSS = 1;"
-perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
+APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '/usr/local/apache2';"
+APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '/usr/local/apache2/bin/httpd';"
+perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
