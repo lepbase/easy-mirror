@@ -100,7 +100,7 @@ APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
 APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
 perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
 
-printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_WEBSITE = ensembl_website\n" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_ARCHIVE = ensembl_archive\n  DATABASE_WEBSITE = ensembl_website\n" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
@@ -114,6 +114,7 @@ DB_ARCHIVE_PORT=$(awk -F "=" '/DB_ARCHIVE_PORT/ {print $2}' $INI | tr -d ' ')
 DB_ARCHIVE_USER=$(awk -F "=" '/DB_ARCHIVE_USER/ {print $2}' $INI | tr -d ' ')
 DB_ARCHIVE_PASS=$(awk -F "=" '/RDB_ARCHIVE_PASS/ {print $2}' $INI | tr -d ' ')
 printf "[DATABASE_ARCHIVE]\n  USER = $DB_ARCHIVE_USER \n  HOST = $DB_ARCHIVE_HOST\n  PORT = $DB_ARCHIVE_PORT\n  PASS = $DB_ARCHIVE_PASS" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
