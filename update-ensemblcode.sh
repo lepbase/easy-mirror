@@ -100,22 +100,32 @@ APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
 APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
 perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
 
+printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_WEBSITE = ensembl_website" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
-RW_USER=$(awk -F "=" '/RW_USER/ {print $2}' $INI | tr -d ' ')
-RW_PASS=$(awk -F "=" '/RW_PASS/ {print $2}' $INI | tr -d ' ')
-printf "[DATABASE_SESSION]\n  USER = $RW_USER \n  HOST = $DB_HOST\n  PORT = $DB_PORT\n  PASS = $RW_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_PASS=$(awk -F "=" '/RDB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
+printf "[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+
+DB_WEBSITE_HOST=$(awk -F "=" '/DB_WEBSITE_HOST/ {print $2}' $INI | tr -d ' ')
+DB_WEBSITE_PORT=$(awk -F "=" '/DB_WEBSITE_PORT/ {print $2}' $INI | tr -d ' ')
+DB_WEBSITE_USER=$(awk -F "=" '/DB_WEBSITE_USER/ {print $2}' $INI | tr -d ' ')
+DB_WEBSITE_PASS=$(awk -F "=" '/RDB_WEBSITE_PASS/ {print $2}' $INI | tr -d ' ')
+printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+
 
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
-RO_USER=$(awk -F "=" '/RO_USER/ {print $2}' $INI | tr -d ' ')
-RO_PASS=$(awk -F "=" '/RO_PASS/ {print $2}' $INI | tr -d ' ')
+DB_USER=$(awk -F "=" '/RO_USER/ {print $2}' $INI | tr -d ' ')
+DB_PASS=$(awk -F "=" '/RO_PASS/ {print $2}' $INI | tr -d ' ')
 perl -p -i -e "s/^\s*DATABASE_HOST\s*=.*/DATABASE_HOST = $DB_HOST/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_HOST_PORT\s*=.*/DATABASE_HOST_PORT = $DB_PORT/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $RW_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $RW_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $RO_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $RO_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $DB_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $DB_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 perl -p -i -e "s/^.GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
