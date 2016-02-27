@@ -100,14 +100,14 @@ APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
 APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
 perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
 
-printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_WEBSITE = ensembl_website" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_WEBSITE = ensembl_website\n" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PASS=$(awk -F "=" '/RDB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
-printf "[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
-printf "[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS" > $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $LOCALDIR/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 DB_WEBSITE_HOST=$(awk -F "=" '/DB_WEBSITE_HOST/ {print $2}' $INI | tr -d ' ')
 DB_WEBSITE_PORT=$(awk -F "=" '/DB_WEBSITE_PORT/ {print $2}' $INI | tr -d ' ')
