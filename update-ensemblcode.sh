@@ -95,8 +95,8 @@ DEBUG_JS="  \\\$SiteDefs::ENSEMBL_DEBUG_JS = 1;"
 DEBUG_CSS="  \\\$SiteDefs::ENSEMBL_DEBUG_CSS = 1;"
 DEBUG_IMAGES="  \\\$SiteDefs::ENSEMBL_DEBUG_IMAGES = 1;"
 SKIP_RSS="  \\\$SiteDefs::ENSEMBL_SKIP_RSS = 1;"
-APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '/usr/local/apache2';"
-APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '/usr/local/apache2/bin/httpd';"
+APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
+APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
 perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
@@ -132,6 +132,5 @@ if ! [ -z $EG_UNIT ]; then
   EG_UNIT_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_UNIT_NAME:0:1})${EG_UNIT_NAME:1}"
   EG_UNIT_PLUGIN="  'EG::$EG_UNIT_NAME' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$EG_UNIT',"
   EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
-  echo "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_UNIT_PLUGIN\n$EG_COMMON_PLUGIN/"
   perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_UNIT_PLUGIN\n$EG_COMMON_PLUGIN/" $LOCALDIR/ensembl-webcode/conf/Plugins.pm;
 fi
