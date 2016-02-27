@@ -3,10 +3,10 @@
 INI=$1
 
 function usage(){
-  echo "Usage: './update-ensemblcode.sh <filename.ini>'\n";
+  echo "Usage: './update-ensemblcode.sh <filename.ini> </path/to/install>'\n";
 }
 
-if [ -z $INI ]; then
+if [ -z $2 ]; then
   usage
   exit 1
 fi
@@ -29,18 +29,18 @@ function git_update(){
 }
 
 # check script was called correctly
-if [ -z $1 ]; then
+if [ -z $2 ]; then
   usage
   exit 1
 fi
 
 # set directory names
 CWD=$(pwd)
-if [[ "$1" = /* ]]
+if [[ "$2" = /* ]]
 then
-   LOCALDIR=$1 # absolute path
+   LOCALDIR=$2 # absolute path
 else
-   LOCALDIR=$CWD/$1 # relative path
+   LOCALDIR=$CWD/$2 # relative path
 fi
 
 # create directories if not exist
