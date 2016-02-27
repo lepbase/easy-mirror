@@ -114,8 +114,22 @@ perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $RW_PASS/" 
 perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $RO_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $RO_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
+perl -p -i -e "s/^.GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/Apache/Handlers.pm;
+
+perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm;
 
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/CDBI.pm;
 
 perl -0777 -p -i -e 's/while \(my \@T = caller.+?\s}/\# Removed caller /sg' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/SpeciesDefs.pm
+
+# add plugins if this is an ensemblgenomes site
+if ! [ -z $EG_UNIT ]; then
+  EG_UNIT_NAME=`echo $EG_UNIT | cut -d"-" -f 3`
+  EG_UNIT_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_UNIT_NAME:0:1})${EG_UNIT_NAME:1}"
+  EG_UNIT_PLUGIN="  'EG::$EG_UNIT_NAME' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$EG_UNIT',"
+  EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
+  echo "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_UNIT_PLUGIN\n$EG_COMMON_PLUGIN/"
+  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_UNIT_PLUGIN\n$EG_COMMON_PLUGIN/" $LOCALDIR/ensembl-webcode/conf/Plugins.pm;
+fi
