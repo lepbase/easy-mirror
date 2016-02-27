@@ -70,10 +70,10 @@ EG_REPO=$(awk -F "=" '/EG_REPO/ {print $2}' $INI | tr -d ' ')
 if ! [ -z $EG_REPO ]; then
   # call git update for each EnsemblGenomes repository:
   EG_BRANCH=$(awk -F "=" '/EG_BRANCH/ {print $2}' $INI | tr -d ' ')
-  EG_UNIT=$(awk -F "=" '/EG_UNIT/ {print $2}' $INI | tr -d ' ')
+  EG_DIVISION=$(awk -F "=" '/EG_DIVISION/ {print $2}' $INI | tr -d ' ')
   git_update $LOCALDIR/eg-web-common $EG_REPO/eg-web-common.git $EG_BRANCH
   git_update $LOCALDIR/eg-web-search $EG_REPO/eg-web-search.git $EG_BRANCH
-  git_update $LOCALDIR/eg-web-metazoa $EG_REPO/$EG_UNIT.git $EG_BRANCH
+  git_update $LOCALDIR/eg-web-metazoa $EG_REPO/$EG_DIVISION.git $EG_BRANCH
 fi
 
 # call git update for bioperl-live
@@ -139,10 +139,10 @@ perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl-webcode/modules/En
 perl -0777 -p -i -e 's/while \(my \@T = caller.+?\s}/\# Removed caller /sg' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/SpeciesDefs.pm
 
 # add plugins if this is an ensemblgenomes site
-if ! [ -z $EG_UNIT ]; then
-  EG_UNIT_NAME=`echo $EG_UNIT | cut -d"-" -f 3`
-  EG_UNIT_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_UNIT_NAME:0:1})${EG_UNIT_NAME:1}"
-  EG_UNIT_PLUGIN="  'EG::$EG_UNIT_NAME' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$EG_UNIT',"
+if ! [ -z $EG_DIVISION ]; then
+  EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
+  EG_DIVISION_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_DIVISION_NAME:0:1})${EG_DIVISION_NAME:1}"
+  EG_DIVISION_PLUGIN="  'EG::$EG_DIVISION_NAME' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$EG_DIVISION',"
   EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
-  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_UNIT_PLUGIN\n$EG_COMMON_PLUGIN/" $LOCALDIR/ensembl-webcode/conf/Plugins.pm;
+  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_COMMON_PLUGIN/" $LOCALDIR/ensembl-webcode/conf/Plugins.pm;
 fi
