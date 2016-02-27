@@ -90,6 +90,7 @@ fi
 
 # move some files ready for editing
 cp $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm-dist $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
+cp $LOCALDIR/ensembl-webcode/conf/Plugins.pm-dist $LOCALDIR/ensembl-webcode/conf/Plugins.pm
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
 DEBUG_JS="  \\\$SiteDefs::ENSEMBL_DEBUG_JS = 1;"
 DEBUG_CSS="  \\\$SiteDefs::ENSEMBL_DEBUG_CSS = 1;"
