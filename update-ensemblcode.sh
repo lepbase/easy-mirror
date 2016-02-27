@@ -118,8 +118,8 @@ printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOS
 
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
-DB_USER=$(awk -F "=" '/RO_USER/ {print $2}' $INI | tr -d ' ')
-DB_PASS=$(awk -F "=" '/RO_PASS/ {print $2}' $INI | tr -d ' ')
+DB_USER=$(awk -F "=" '/DB_USER/ {print $2}' $INI | tr -d ' ')
+DB_PASS=$(awk -F "=" '/DB_PASS/ {print $2}' $INI | tr -d ' ')
 perl -p -i -e "s/^\s*DATABASE_HOST\s*=.*/DATABASE_HOST = $DB_HOST/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_HOST_PORT\s*=.*/DATABASE_HOST_PORT = $DB_PORT/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
