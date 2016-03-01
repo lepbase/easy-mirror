@@ -94,10 +94,10 @@ cp $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm-dist $LOCALDIR/public-plugin
 cp $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini-dist $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 cp $LOCALDIR/ensembl-webcode/conf/Plugins.pm-dist $LOCALDIR/ensembl-webcode/conf/Plugins.pm
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
-DEBUG_JS="  \\\$SiteDefs::ENSEMBL_DEBUG_JS = 1;"
-DEBUG_CSS="  \\\$SiteDefs::ENSEMBL_DEBUG_CSS = 1;"
-DEBUG_IMAGES="  \\\$SiteDefs::ENSEMBL_DEBUG_IMAGES = 1;"
-SKIP_RSS="  \\\$SiteDefs::ENSEMBL_SKIP_RSS = 1;"
+#DEBUG_JS="  \\\$SiteDefs::ENSEMBL_DEBUG_JS = 1;"
+#DEBUG_CSS="  \\\$SiteDefs::ENSEMBL_DEBUG_CSS = 1;"
+#DEBUG_IMAGES="  \\\$SiteDefs::ENSEMBL_DEBUG_IMAGES = 1;"
+#SKIP_RSS="  \\\$SiteDefs::ENSEMBL_SKIP_RSS = 1;"
 APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
 APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
 perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$DEBUG_JS\n$DEBUG_CSS\n$DEBUG_IMAGES\n$SKIP_RSS\n$APACHE_BIN\n$APACHE_DIR/" $LOCALDIR/public-plugins/mirror/conf/SiteDefs.pm
