@@ -1,13 +1,9 @@
 #!/bin/bash
 
+# check script was called correctly
 INI=$1
-
-function usage(){
-  echo "Usage: './install-prerequisites.sh <filename.ini>'\n";
-}
-
 if [ -z $INI ]; then
-  usage
+  echo "Usage: './install-prerequisites.sh <filename.ini>'\n";
   exit 1
 fi
 

@@ -1,14 +1,9 @@
 #!/bin/bash
 
-INI=$1
-
-function usage(){
-  echo "Usage: './reload-ensemblcode.sh <filename.ini>'\n";
-}
-
 # check script was called correctly
+INI=$1
 if [ -z $INI ]; then
-  usage
+  echo "Usage: './reload-ensemblcode.sh <filename.ini>'\n";
   exit 1
 fi
 
