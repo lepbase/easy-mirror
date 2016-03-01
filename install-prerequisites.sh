@@ -135,5 +135,6 @@ adduser $WEB_USER_NAME \
 echo "$WEB_USER_NAME:$WEB_USER_PASS" | chpasswd
 
 # create a directory for the ensembl code and change ownership to eguser
-mkdir /ensembl
-chown $WEB_USER_NAME:$WEB_USER_NAME /ensembl
+SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
+mkdir $SERVER_ROOT
+chown $WEB_USER_NAME:$WEB_USER_NAME $SERVER_ROOT

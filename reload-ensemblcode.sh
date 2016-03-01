@@ -3,41 +3,44 @@
 INI=$1
 
 function usage(){
-  echo "Usage: './reload-ensemblcode.sh <filename.ini> </path/to/install>'\n";
+  echo "Usage: './reload-ensemblcode.sh <filename.ini>'\n";
 }
 
 # check script was called correctly
-if [ -z $2 ]; then
+if [ -z $INI ]; then
   usage
   exit 1
 fi
 
 # set directory names
 CWD=$(pwd)
-if [[ "$2" = /* ]]
+SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
+if [[ "$SERVER_ROOT" = /* ]]
 then
-   LOCALDIR=$2 # Absolute path
+   # absolute path, nothing to do
 else
-   LOCALDIR=$CWD/$2 # Relative path
+   SERVER_ROOT=$CWD/$SERVER_ROOT # relative path
 fi
 
 # stop server
-$LOCALDIR/ensembl-webcode/ctrl_scripts/stop_server
+$SERVER_ROOT/ensembl-webcode/ctrl_scripts/stop_server
 
-if [ -e $LOCALDIR/ensembl-webcode/conf/config.packed ]; then
-  rm $LOCALDIR/ensembl-webcode/conf/config.packed
-  rm -r $LOCALDIR/ensembl-webcode/conf/packed
+# remove packed config files
+if [ -e $SERVER_ROOT/ensembl-webcode/conf/config.packed ]; then
+  rm $SERVER_ROOT/ensembl-webcode/conf/config.packed
+  rm -r $SERVER_ROOT/ensembl-webcode/conf/packed
 fi
 
-if [ ! -d $LOCALDIR/logs ]; then
-  mkdir "$LOCALDIR/logs"
+# create logs and tmp directories
+if [ ! -d $SERVER_ROOT/logs ]; then
+  mkdir "$SERVER_ROOT/logs"
 fi
-if [ ! -d $LOCALDIR/tmp ]; then
-  mkdir "$LOCALDIR/tmp"
+if [ ! -d $SERVER_ROOT/tmp ]; then
+  mkdir "$SERVER_ROOT/tmp"
 fi
 
 # start server
-$LOCALDIR/ensembl-webcode/ctrl_scripts/start_server
+$SERVER_ROOT/ensembl-webcode/ctrl_scripts/start_server
 
 # test whether site is working, restart if not
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
@@ -51,7 +54,7 @@ while [ $COUNT -lt 5 ]; do
   else
     if [ $COUNT -lt 4 ]; then
       echo "WARNING: unable to resolve URL $URL, restarting server."
-      $LOCALDIR/ensembl-webcode/ctrl_scripts/restart_server
+      $SERVER_ROOT/ensembl-webcode/ctrl_scripts/restart_server
     else
       echo "ERROR: failed to start server in 5 attempts."
     fi
