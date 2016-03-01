@@ -17,27 +17,26 @@ debconf-set-selections <<< 'ttf-mscorefonts-installer msttcorefonts/accepted-msc
 
 # install most required packages using apt-get install
 apt-get -y install git \
-                        mysql-server \
-                        libmysqlclient*-dev \
-                        libgdbm-dev \
-                        libperl-dev \
-                        libxml2-dev \
-                        memcachedb \
-                        libmemcached-dev \
-                        libevent1-dev \
-                        acedb-other-dotter \
-                        make \
-                        gcc \
-                        php5-gd \
-                        freetype* \
-                        libgd2-xpm-dev \
-                        openssl \
-                        libssl-dev \
-                        graphviz \
-                        libcurl4-openssl-dev \
-                        ttf-mscorefonts-installer \
-                        default-jre \
-                        cpanminus
+           libmysqlclient*-dev \
+           libgdbm-dev \
+           libperl-dev \
+           libxml2-dev \
+           memcachedb \
+           libmemcached-dev \
+           libevent1-dev \
+           acedb-other-dotter \
+           make \
+           gcc \
+           php5-gd \
+           freetype* \
+           libgd2-xpm-dev \
+           openssl \
+           libssl-dev \
+           graphviz \
+           libcurl4-openssl-dev \
+           ttf-mscorefonts-installer \
+           default-jre \
+           cpanminus
 
 # install most required perl modules using cpanminus
 cpanm --sudo Archive::Zip \
