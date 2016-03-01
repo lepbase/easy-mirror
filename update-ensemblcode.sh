@@ -130,7 +130,7 @@ perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION
 perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $DB_USER/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $DB_PASS/" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
-perl -p -i -e "s/^.GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^.*GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $LOCALDIR/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/Apache/Handlers.pm;
 
