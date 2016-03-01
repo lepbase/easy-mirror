@@ -1,22 +1,24 @@
 #!/bin/bash
 
+INI=$1
+
 function usage(){
-  echo "Usage: './reload-ensemblcode.sh </path/to/install>'\n";
+  echo "Usage: './reload-ensemblcode.sh <filename.ini> </path/to/install>'\n";
 }
 
 # check script was called correctly
-if [ -z $1 ]; then
+if [ -z $2 ]; then
   usage
   exit 1
 fi
 
 # set directory names
 CWD=$(pwd)
-if [[ "$1" = /* ]]
+if [[ "$2" = /* ]]
 then
-   LOCALDIR=$1 # Absolute path
+   LOCALDIR=$2 # Absolute path
 else
-   LOCALDIR=$CWD/$1 # Relative path
+   LOCALDIR=$CWD/$2 # Relative path
 fi
 
 # stop server
@@ -34,5 +36,23 @@ if [ ! -d $LOCALDIR/tmp ]; then
   mkdir "$LOCALDIR/tmp"
 fi
 
-# start lepbase
+# start server
 $LOCALDIR/ensembl-webcode/ctrl_scripts/start_server
+
+# test whether site is working, restart if not
+HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
+COUNT=0
+URL=http://localhost:$HTTP_PORT/i/e.png
+while [ $COUNT -lt 5 ]; do
+  if curl --output /dev/null --silent --head --fail "$URL"; then
+    break
+  else
+    if [ $COUNT -lt 4 ]; then
+      echo "WARNING: unable to resolve URL $URL, restarting server."
+      $LOCALDIR/ensembl-webcode/ctrl_scripts/restart_server
+    else
+      echo "ERROR: failed to start server in 5 attempts."
+    fi
+  fi
+  let COUNT=COUNT+1
+done
