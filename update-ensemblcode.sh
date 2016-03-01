@@ -138,6 +138,8 @@ perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/eg-web-common/modules/EnsE
 
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/CDBI.pm;
 
+perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $LOCALDIR/ensembl/ensembl/modules/Bio/EnsEMBL/Utils/Exception.pm
+
 perl -0777 -p -i -e 's/while \(my \@T = caller.+?\s}/\# Removed caller /sg' $LOCALDIR/ensembl-webcode/modules/EnsEMBL/Web/SpeciesDefs.pm
 
 # add plugins if this is an ensemblgenomes site
