@@ -72,6 +72,7 @@ if ! [ -z $EG_REPO ]; then
   EG_BRANCH=$(awk -F "=" '/EG_BRANCH/ {print $2}' $INI | tr -d ' ')
   EG_DIVISION=$(awk -F "=" '/EG_DIVISION/ {print $2}' $INI | tr -d ' ')
   git_update $LOCALDIR/eg-web-common $EG_REPO/eg-web-common.git $EG_BRANCH
+  git_update $LOCALDIR/eg-rest $EG_REPO/eg-rest.git $EG_BRANCH
   git_update $LOCALDIR/eg-web-search $EG_REPO/eg-web-search.git $EG_BRANCH
   git_update $LOCALDIR/eg-web-metazoa $EG_REPO/$EG_DIVISION.git $EG_BRANCH
 fi
