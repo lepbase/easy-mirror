@@ -43,6 +43,8 @@ $LOCALDIR/ensembl-webcode/ctrl_scripts/start_server
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
 COUNT=0
 URL=http://localhost:$HTTP_PORT/i/e.png
+# ! this only works for EnsemblGenomes
+# ! need to use a different test image for Ensembl
 while [ $COUNT -lt 5 ]; do
   if curl --output /dev/null --silent --head --fail "$URL"; then
     break
