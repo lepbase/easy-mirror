@@ -95,8 +95,6 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
   cd $CURRENTDIR
 fi
 
-exit;
-
 # fetch and load species databases
 SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $INI | tr -d ' ')
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
@@ -113,15 +111,21 @@ if ! [ -z $SPECIES_DB_URL ]; then
     URL="$(echo ${SPECIES_DB_URL/$PROTOCOL/})"
     wget -r $SPECIES_DB_URL/$DB
     mv $URL/* ./
-    gunzip $DB/*.gz
+    gunzip $DB/*sql.gz
 
     # load sql into database
     $ROOT_CONNECT $DB < $DB/$DB.sql
 
-    # load data into database
-    $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
+    # load data into database one file at a time to reduce disk space used
+    for ZIPPED_FILE in $DB/*.txt.gz
+    do
+      gunzip $ZIPPED_FILE
+      FILE=${ZIPPED_FILE%.*}
+      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
+      rm $FILE
+    done
 
-    # remove downloaded data
+    # remove remaining downloaded data
     rm -r $DB
   done
   cd $CURRENTDIR
