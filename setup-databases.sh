@@ -21,6 +21,7 @@ DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 
 ROOT_CONNECT="mysql -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
+IMPORT_CONNECT="mysqlimport -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
 
 # if DB_PORT is not 3306 test whether we can connect and throw error if not
 if ! [ $? -eq 0 ]; then
@@ -63,7 +64,7 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
     # create local database
     $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 
-    # fetch and unzip sql
+    # fetch and unzip sql/data
     PROTOCOL="$(echo $ENSEMBL_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
     URL="$(echo ${ENSEMBL_DB_URL/$PROTOCOL/})"
     wget -r $ENSEMBL_DB_URL/$DB
@@ -72,6 +73,16 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
     gunzip $DB/*.gz
 
     # load sql into database
+    $ROOT_CONNECT $DB < $DB/$DB.sql
+
+    if [ "$DB" = "ensembl_accounts" ]; then
+      # make a copy of ensembl_accounts called ensembl_session to match ensembl default
+      $ROOT_CONNECT -e "DROP DATABASE IF EXISTS ensembl_session; CREATE DATABASE ensembl_session;"
+      $ROOT_CONNECT ensembl_session < $DB/$DB.sql
+    else
+      # load data into database
+      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
+    fi
 
   done
   cd $CURRENTDIR
