@@ -140,8 +140,8 @@ printf "package EnsEMBL::Ensembl::SiteDefs;\nuse strict;\n\nsub update_conf {\n"
 
 # set webserver parameters
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
-echo "  \$SiteDefs::APACHE_DIR = '\/usr\/local\/apache2';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
-echo "  \$SiteDefs::APACHE_BIN = '\/usr\/local\/apache2\/bin\/httpd';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::APACHE_DIR = '/usr/local/apache2';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::APACHE_BIN = '/usr/local/apache2/bin/httpd';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # use SPECIES_DBS to populate Primary/Secondary species
@@ -154,14 +154,14 @@ SECONDARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${SECONDARY_SP:0:1})${SECONDARY_S
 if [ -z $SECONDARY_SP ]; then
   SECONDARY_SP=$PRIMARY_SP
 fi
-echo "map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
-echo "\$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
-echo "\$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 for DB in $SPECIES_DBS
 do
     SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
-    echo "\$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 done
 
 # finish writing SiteDefs.pm
