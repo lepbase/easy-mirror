@@ -43,21 +43,37 @@ if ! [ -z $DB_PASS ]; then
   DB_USER_CREATE="$DB_USER_CREATE IDENTIFIED BY '$DB_PASS'"
 fi
 DB_USER_CREATE="$DB_USER_CREATE;"
-WEBSITE_USER_CREATE="GRANT SELECT ON \`ensembl\\_%\`.* TO '$DB_WEBSITE_USER'@'$ENSEMBL_WEBSITE_HOST'"
-if ! [ -z $DB_WEBSITE_PASS ]; then
-  WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE IDENTIFIED BY '$DB_WEBSITE_PASS'"
+if ! [ -z $DB_WEBSITE_USER  ]; then
+  WEBSITE_USER_CREATE="GRANT SELECT ON \`ensembl\\_%\`.* TO '$DB_WEBSITE_USER'@'$ENSEMBL_WEBSITE_HOST'"
+  if ! [ -z $DB_WEBSITE_PASS ]; then
+    WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE IDENTIFIED BY '$DB_WEBSITE_PASS'"
+  fi
+  WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE;"
 fi
-WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE;"
 $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE$WEBSITE_USER_CREATE"
 
+# fetch and load ensembl website databases
+if ! [ -z $ENSEMBL_DBS  ]; then
+  DB_LIST=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+  for DB in $SPECIES_DBS
+  do
+    # create local database
+    $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
+
+    # fetch and unzip sql
+    PROTOCOL="$(echo $ENSEMBL_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    URL="$(echo ${ENSEMBL_DB_URL/$PROTOCOL/})"
+    wget -r $ENSEMBL_DB_URL
+    mv $URL/* ./
 
 
-[WEBSITE]
-  ENSEMBL_WEBSITE_HOST = localhost
+    # load sql into database
 
-[DATA_SOURCE]
-  ENSEMBL_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
-  ENSEMBL_DBS = [ ensembl_accounts ensembl_archive_83 ensembl_website_83 ]
+  done
+fi
+# ! todo fetch and load databases from remote urls
+#  ENSEMBL_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
+#  ENSEMBL_DBS = [ ensembl_accounts ensembl_archive_83 ensembl_website_83 ]
 
-  SPECIES_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
-  SPECIES_DBS = [ homo_sapiens_core_83_38 mus_musculus_core_83_38 ]
+#  SPECIES_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
+#  SPECIES_DBS = [ homo_sapiens_core_83_38 mus_musculus_core_83_38 ]
