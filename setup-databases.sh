@@ -53,6 +53,8 @@ fi
 $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE$WEBSITE_USER_CREATE"
 
 # fetch and load ensembl website databases
+CURRENTDIR=`pwd`
+cd /tmp
 if ! [ -z $ENSEMBL_DBS  ]; then
   DB_LIST=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
   for DB in $SPECIES_DBS
@@ -71,6 +73,7 @@ if ! [ -z $ENSEMBL_DBS  ]; then
 
   done
 fi
+cd $CURRENTDIR
 # ! todo fetch and load databases from remote urls
 #  ENSEMBL_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
 #  ENSEMBL_DBS = [ ensembl_accounts ensembl_archive_83 ensembl_website_83 ]
