@@ -82,7 +82,7 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
       # load data into database one file at a time to reduce disk space used
       for ZIPPED_FILE in $DB/*.txt.gz
       do
-        gunzip $DB/$ZIPPED_FILE
+        gunzip $ZIPPED_FILE
         FILE=${ZIPPED_FILE%.*}
         $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
         rm $FILE
