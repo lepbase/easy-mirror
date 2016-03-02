@@ -168,6 +168,9 @@ do
     DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
 
     # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
+    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16
+    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48
+    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
     if [ -z $EG_DIVISION ]; then
       # ensembl mirror so look for existing files
       if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
