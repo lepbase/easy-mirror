@@ -117,6 +117,7 @@ perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/ensembl-webcode/modules
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm;
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/ensembl-webcode/modules/EnsEMBL/Web/CDBI.pm;
 perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/ensembl/modules/Bio/EnsEMBL/Utils/Exception.pm
+perl -0777 -p -i -e 's/while \( my \@call = caller.+?\s}/\# Removed caller /sg' $SERVER_ROOT/ensembl/modules/Bio/EnsEMBL/Utils/Exception.pm
 perl -0777 -p -i -e 's/while \(my \@T = caller.+?\s}/\# Removed caller /sg' $SERVER_ROOT/ensembl-webcode/modules/EnsEMBL/Web/SpeciesDefs.pm
 
 # add plugins if this is an ensemblgenomes site
