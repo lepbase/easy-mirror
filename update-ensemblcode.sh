@@ -163,7 +163,21 @@ do
     SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
     echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+
+    # add to DEFAULT_FAVOURITES
     DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
+
+    # copy/create a Genus_species.ini file in mirror/conf/ini-files
+    if [ -z $EG_DIVISION ]; then
+      # ensembl mirror so look for ini file
+      if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
+        cp $SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      else
+        cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      fi
+    else
+      cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+    fi
 done
 DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
 
