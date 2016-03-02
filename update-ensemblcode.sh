@@ -191,7 +191,7 @@ do
       cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     fi
 
-    perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+    perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 done
 DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
