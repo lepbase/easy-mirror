@@ -55,7 +55,7 @@ $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE$WEBSITE_USER_CREATE"
 # fetch and load ensembl website databases
 ENSEMBL_DB_URL=$(awk -F "=" '/ENSEMBL_DB_URL/ {print $2}' $INI | tr -d ' ')
 ENSEMBL_DBS=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
-if ! [ -z $ENSEMBL_DBS ]; then
+if ! [ -z $ENSEMBL_DB_URL ]; then
   CURRENTDIR=`pwd`
   cd /tmp
   for DB in $ENSEMBL_DBS
@@ -68,7 +68,8 @@ if ! [ -z $ENSEMBL_DBS ]; then
     URL="$(echo ${ENSEMBL_DB_URL/$PROTOCOL/})"
     wget -r $ENSEMBL_DB_URL/$DB
     mv $URL/* ./
-
+    rm -r $URL*
+    gunzip $DB/*.gz
 
     # load sql into database
 
