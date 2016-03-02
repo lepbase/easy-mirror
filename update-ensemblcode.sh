@@ -80,15 +80,9 @@ if [ ! -d $SERVER_ROOT/tmp ]; then
 fi
 
 # move some *-dist files ready for editing
-cp $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm-dist $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+#cp $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm-dist $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini-dist $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 cp $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm-dist $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
-
-# set webserver parameters
-HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
-APACHE_DIR="  \\\$SiteDefs::APACHE_DIR   = '\/usr\/local\/apache2';"
-APACHE_BIN="  \\\$SiteDefs::APACHE_BIN   = '\/usr\/local\/apache2\/bin\/httpd';"
-perl -p -i -e "s/.*\\\$SiteDefs::ENSEMBL_PORT.*/  \\\$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;\n$APACHE_BIN\n$APACHE_DIR/" $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # set multi-species database connection parameters
 printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_ARCHIVE = ensembl_archive\n  DATABASE_WEBSITE = ensembl_website\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
@@ -141,10 +135,17 @@ if ! [ -z $EG_DIVISION ]; then
   perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_API_PLUGIN\n$EG_COMMON_PLUGIN/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
 fi
 
-# ! todo:
-# use SPECIES_DBS to populate Primary/Secondary species, modify DEFAULTS.ini
-# and generate Genus_species.ini files
+# begin writing SiteDefs.pm
+printf "package EnsEMBL::Ensembl::SiteDefs;\nuse strict;\n\nsub update_conf {\n" > $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
+# set webserver parameters
+HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
+echo "  \$SiteDefs::APACHE_DIR = '\/usr\/local\/apache2';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::APACHE_BIN = '\/usr\/local\/apache2\/bin\/httpd';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "  \$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+
+# use SPECIES_DBS to populate Primary/Secondary species
+# ! todo - also modify DEFAULTS.ini and generate Genus_species.ini files
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
 PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
 PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
@@ -153,12 +154,15 @@ SECONDARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${SECONDARY_SP:0:1})${SECONDARY_S
 if [ -z $SECONDARY_SP ]; then
   SECONDARY_SP=$PRIMARY_SP
 fi
-echo "map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" > new.SiteDefs.pm
-echo "\$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> new.SiteDefs.pm
-echo "\$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> new.SiteDefs.pm
+echo "map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "\$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+echo "\$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 for DB in $SPECIES_DBS
 do
     SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
-    echo "\$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> new.SiteDefs.pm
+    echo "\$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 done
+
+# finish writing SiteDefs.pm
+printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
