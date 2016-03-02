@@ -144,6 +144,12 @@ echo "  \$SiteDefs::APACHE_DIR = '/usr/local/apache2';" >> $SERVER_ROOT/public-p
 echo "  \$SiteDefs::APACHE_BIN = '/usr/local/apache2/bin/httpd';" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
+# create directories for species/placeholder images
+mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16
+mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48
+mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
+cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/placeholder.png
+
 # use SPECIES_DBS to populate Primary/Secondary species
 # ! todo - also generate Genus_species.ini files
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
@@ -168,9 +174,6 @@ do
     DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_LOWER"
 
     # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
-    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16
-    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48
-    mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
     if [ -z $EG_DIVISION ]; then
       # ensembl mirror so look for existing files
       if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
