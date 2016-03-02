@@ -142,5 +142,23 @@ if ! [ -z $EG_DIVISION ]; then
 fi
 
 # ! todo:
-# use SPECIES_CORE_DBS to populate Primary/Secondary species, modify DEFAULTS.ini
+# use SPECIES_DBS to populate Primary/Secondary species, modify DEFAULTS.ini
 # and generate Genus_species.ini files
+
+SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
+PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
+SECONDARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 2 | awk -F'_core_' '{print $1}'`
+SECONDARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${SECONDARY_SP:0:1})${SECONDARY_SP:1}"
+if [ -z $SECONDARY_SP ]; then
+  SECONDARY_SP=$PRIMARY_SP
+fi
+echo "map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" > new.SiteDefs.pm
+echo "\$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> new.SiteDefs.pm
+echo "\$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> new.SiteDefs.pm
+for DB in $SPECIES_DBS
+do
+    SP_LOWER=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
+    SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
+    echo "\$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> new.SiteDefs.pm
+done
