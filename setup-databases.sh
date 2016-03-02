@@ -79,13 +79,17 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
       $ROOT_CONNECT -e "DROP DATABASE IF EXISTS ensembl_session; CREATE DATABASE ensembl_session;"
       $ROOT_CONNECT ensembl_session < $DB/$DB.sql
     else
-      # load data into database using named pipe
-      mkfifo txtfile
-      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L txtfile &
-      zcat $DB/*.txt.gz > txtfile
+      # load data into database one file at a time to reduce disk space used
+      for ZIPPED_FILE in $DB/*.txt.gz
+      do
+        gunzip $DB/$ZIPPED_FILE
+        FILE=${ZIPPED_FILE%.*}
+        $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
+        rm $FILE
+      done
     fi
 
-    # remove downloaded data
+    # remove remaining downloaded data
     rm -r $DB
   done
   cd $CURRENTDIR
