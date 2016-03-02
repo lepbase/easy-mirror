@@ -160,36 +160,35 @@ echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary sp
 DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = ["
 for DB in $SPECIES_DBS
 do
-    SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
-    SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
-    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+  SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
+  SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
+  echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
-    # add to DEFAULT_FAVOURITES
-    DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_LOWER"
+  # add to DEFAULT_FAVOURITES
+  DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_LOWER"
 
-    # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
-    if [ -z $EG_DIVISION ]; then
-      # ensembl mirror so look for existing files
-      if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
-        cp $SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
-        cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/16/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
-        cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/48/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
-        cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/64/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
-      else
-        cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
-        cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
-        cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
-        cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
-      fi
+  # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
+  if [ -z $EG_DIVISION ]; then
+    # ensembl mirror so look for existing files
+    if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
+      cp $SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/16/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
+      cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/48/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
+      cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/64/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     else
       cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
       cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
       cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
       cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     fi
+  else
+    cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+    cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
+    cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
+    cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
+  fi
 
-    perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
-
+  perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
 done
 DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
 
