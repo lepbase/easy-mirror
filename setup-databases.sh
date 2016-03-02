@@ -69,7 +69,7 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
     URL="$(echo ${ENSEMBL_DB_URL/$PROTOCOL/})"
     wget -r $ENSEMBL_DB_URL/$DB
     mv $URL/* ./
-    gunzip $DB/*.gz
+    gunzip $DB/*sql.gz
 
     # load sql into database
     $ROOT_CONNECT $DB < $DB/$DB.sql
@@ -79,12 +79,19 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
       $ROOT_CONNECT -e "DROP DATABASE IF EXISTS ensembl_session; CREATE DATABASE ensembl_session;"
       $ROOT_CONNECT ensembl_session < $DB/$DB.sql
     else
-      # load data into database
-      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
+      # load data into database using named pipe
+      mkfifo txtfile
+      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L txtfile &
+      zcat $DB/*.txt.gz > txtfile
     fi
+
+    # remove downloaded data
+    rm -r $DB
   done
   cd $CURRENTDIR
 fi
+
+exit;
 
 # fetch and load species databases
 SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $INI | tr -d ' ')
@@ -109,6 +116,9 @@ if ! [ -z $SPECIES_DB_URL ]; then
 
     # load data into database
     $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
+
+    # remove downloaded data
+    rm -r $DB
   done
   cd $CURRENTDIR
 fi
