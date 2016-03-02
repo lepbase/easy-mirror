@@ -136,7 +136,7 @@ if ! [ -z $EG_DIVISION ]; then
 fi
 
 # begin writing SiteDefs.pm
-printf "package EnsEMBL::Ensembl::SiteDefs;\nuse strict;\n\nsub update_conf {\n" > $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+printf "package EnsEMBL::Mirror::SiteDefs;\nuse strict;\n\nsub update_conf {" > $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # set webserver parameters
 HTTP_PORT=$(awk -F "=" '/HTTP_PORT/ {print $2}' $INI | tr -d ' ')
