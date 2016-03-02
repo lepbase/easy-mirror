@@ -162,10 +162,10 @@ for DB in $SPECIES_DBS
 do
     SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
-    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER $DB)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
     # add to DEFAULT_FAVOURITES
-    DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_LOWER"
+    DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $DB"
 
     # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
     mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16
