@@ -24,12 +24,6 @@ function git_update(){
   cd $CWD
 }
 
-# check script was called correctly
-if [ -z $2 ]; then
-  usage
-  exit 1
-fi
-
 # set directory names
 CWD=$(pwd)
 SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
