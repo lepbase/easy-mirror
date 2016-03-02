@@ -69,7 +69,6 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
     URL="$(echo ${ENSEMBL_DB_URL/$PROTOCOL/})"
     wget -r $ENSEMBL_DB_URL/$DB
     mv $URL/* ./
-    rm -r $URL*
     gunzip $DB/*.gz
 
     # load sql into database
@@ -83,14 +82,33 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
       # load data into database
       $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
     fi
-
   done
   cd $CURRENTDIR
 fi
 
-# ! todo fetch and load databases from remote urls
-#  ENSEMBL_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
-#  ENSEMBL_DBS = [ ensembl_accounts ensembl_archive_83 ensembl_website_83 ]
+# fetch and load species databases
+SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $INI | tr -d ' ')
+SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+if ! [ -z $SPECIES_DB_URL ]; then
+  CURRENTDIR=`pwd`
+  cd /tmp
+  for DB in $SPECIES_DBS
+  do
+    # create local database
+    $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 
-#  SPECIES_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
-#  SPECIES_DBS = [ homo_sapiens_core_83_38 mus_musculus_core_83_38 ]
+    # fetch and unzip sql/data
+    PROTOCOL="$(echo $SPECIES_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    URL="$(echo ${SPECIES_DB_URL/$PROTOCOL/})"
+    wget -r $SPECIES_DB_URL/$DB
+    mv $URL/* ./
+    gunzip $DB/*.gz
+
+    # load sql into database
+    $ROOT_CONNECT $DB < $DB/$DB.sql
+
+    # load data into database
+    $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $DB/*.txt
+  done
+  cd $CURRENTDIR
+fi
