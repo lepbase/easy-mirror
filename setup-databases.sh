@@ -1,41 +1,63 @@
 #!/bin/bash
 
+# check script was called correctly
 INI=$1
-
-function usage(){
-  echo "Usage: './setup-databases.sh <filename.ini>'\n";
-}
-
 if [ -z $INI ]; then
-  usage
+  echo "Usage: './setup-databases.sh <filename.ini>'\n";
   exit 1
 fi
 
-# set database host and user variables from ini file
+# install mysql-server
+apt-get -y install mysql-server mysql-common mysql-client
+
+# set database port, user and password variables from ini file
 DB_ROOT_PASSWORD=$(awk -F "=" '/DB_ROOT_PASSWORD/ {print $2}' $INI | tr -d ' ')
-DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
-RW_USER=$(awk -F "=" '/RW_USER/ {print $2}' $INI | tr -d ' ')
-RW_PASS=$(awk -F "=" '/RW_PASS/ {print $2}' $INI | tr -d ' ')
-RO_USER=$(awk -F "=" '/RO_USER/ {print $2}' $INI | tr -d ' ')
-RO_PASS=$(awk -F "=" '/RO_PASS/ {print $2}' $INI | tr -d ' ')
+DB_USER=$(awk -F "=" '/DB_USER/ {print $2}' $INI | tr -d ' ')
+DB_PASS=$(awk -F "=" '/DB_PASS/ {print $2}' $INI | tr -d ' ')
+DB_WEBSITE_USER=$(awk -F "=" '/DB_WEBSITE_USER/ {print $2}' $INI | tr -d ' ')
+DB_WEBSITE_PASS=$(awk -F "=" '/DB_WEBSITE_PASS/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 
-# ! NEED AN ENSEMBL_ACCOUNTS DATABASE
+ROOT_CONNECT="mysql -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
 
-if ! [ -z $DB_ROOT_PASSWORD ]; then
-  # we have a root password so assume we need to set up databases and users
-  if ! [ $DB_HOST == "localhost" ]; then
-    # this machine is a database server
-    apt-get -y install mysql-server
-  fi
-
-  ROOT_CONNECT="mysql -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT -h$DB_HOST"
-  RW_CREATE="CREATE USER '$RW_USER'@'localhost' IDENTIFIED BY '$RW_PASS';"
-  if [ -z "$RO_PASS" ]; then
-    RO_CREATE="CREATE USER '$RO_USER'@'localhost';"
-  else
-    RO_CREATE="CREATE USER '$RO_USER'@'localhost' IDENTIFIED BY '$RO_PASS';"
-  fi
-  $ROOT_CONNECT -e "$RW_CREATE$RO_CREATE"
-
+# if DB_PORT is not 3306 test whether we can connect and throw error if not
+if ! [ $? -eq 0 ]; then
+    echo "ERROR: unable to connect to mysql server"
+    exit 1;
 fi
+
+# set website host variable to determine where the db will be accessed from
+ENSEMBL_WEBSITE_HOST=$(awk -F "=" '/ENSEMBL_WEBSITE_HOST/ {print $2}' $INI | tr -d ' ')
+if [ -z $ENSEMBL_WEBSITE_HOST ]; then
+  # no host set, assume access allowed from anywhere
+  ENSEMBL_WEBSITE_HOST=%
+fi
+
+# create database users and grant privileges
+SESSION_USER_CREATE="GRANT SELECT, INSERT, UPDATE, DELETE, LOCK TABLES ON ensembl_accounts.* TO '$DB_SESSION_USER'@'$ENSEMBL_WEBSITE_HOST' IDENTIFIED BY '$DB_SESSION_PASS';"
+SESSION_USER_CREATE="$SESSION_USER_CREATE GRANT SELECT, INSERT, UPDATE, DELETE, LOCK TABLES ON ensembl_session.* TO '$DB_SESSION_USER'@'$ENSEMBL_WEBSITE_HOST';"
+DB_USER_CREATE="GRANT SELECT ON *.* TO '$DB_USER'@'$ENSEMBL_WEBSITE_HOST'"
+if ! [ -z $DB_PASS ]; then
+  DB_USER_CREATE="$DB_USER_CREATE IDENTIFIED BY '$DB_PASS'"
+fi
+DB_USER_CREATE="$DB_USER_CREATE;"
+WEBSITE_USER_CREATE="GRANT SELECT ON \`ensembl\\_%\`.* TO '$DB_WEBSITE_USER'@'$ENSEMBL_WEBSITE_HOST'"
+if ! [ -z $DB_WEBSITE_PASS ]; then
+  WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE IDENTIFIED BY '$DB_WEBSITE_PASS'"
+fi
+WEBSITE_USER_CREATE="$WEBSITE_USER_CREATE;"
+$ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE$WEBSITE_USER_CREATE"
+
+
+
+[WEBSITE]
+  ENSEMBL_WEBSITE_HOST = localhost
+
+[DATA_SOURCE]
+  ENSEMBL_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
+  ENSEMBL_DBS = [ ensembl_accounts ensembl_archive_83 ensembl_website_83 ]
+
+  SPECIES_DB_URL = ftp://ftp.ensembl.org/pub/current_mysql/
+  SPECIES_DBS = [ homo_sapiens_core_83_38 mus_musculus_core_83_38 ]
