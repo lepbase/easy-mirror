@@ -33,11 +33,9 @@ fi
 # set directory names
 CWD=$(pwd)
 SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
-if [[ "$SERVER_ROOT" = /* ]]
-then
-   # absolute path, nothing to do
-else
-   SERVER_ROOT=$CWD/$SERVER_ROOT # relative path
+if ! [[ "$SERVER_ROOT" = /* ]]; then
+  # convert relative path to absolute
+  SERVER_ROOT=$CWD/$SERVER_ROOT
 fi
 
 if [ -d $SERVER_ROOT ]; then
