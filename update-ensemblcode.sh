@@ -158,7 +158,7 @@ echo "\$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species"
 echo "\$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> new.SiteDefs.pm
 for DB in $SPECIES_DBS
 do
-    SP_LOWER=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
+    SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
     echo "\$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> new.SiteDefs.pm
 done
