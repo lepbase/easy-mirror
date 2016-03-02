@@ -145,7 +145,7 @@ echo "  \$SiteDefs::APACHE_BIN = '/usr/local/apache2/bin/httpd';" >> $SERVER_ROO
 echo "  \$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # use SPECIES_DBS to populate Primary/Secondary species
-# ! todo - also modify DEFAULTS.ini and generate Genus_species.ini files
+# ! todo - also generate Genus_species.ini files
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
 PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
 PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
@@ -157,12 +157,18 @@ fi
 echo "  map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = ["
 for DB in $SPECIES_DBS
 do
     SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
     SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
-    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw(SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+    echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+    DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
 done
+DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
 
 # finish writing SiteDefs.pm
 printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+
+# update default favourites list
+printf "\n[general]\n$DEFAULT_FAVOURITES" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
