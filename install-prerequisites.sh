@@ -122,7 +122,7 @@ ln -s /usr/bin/perl /usr/local/bin/perl
 
 # create a directory for the ensembl code
 SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
-mkdir $SERVER_ROOT
+mkdir -p $SERVER_ROOT
 
 # create user $WEB_USER_NAME if set
 WEB_USER_NAME=$(awk -F "=" '/WEB_USER_NAME/ {print $2}' $INI | tr -d ' ')
