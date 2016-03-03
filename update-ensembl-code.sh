@@ -122,6 +122,8 @@ if ! [ -z $EG_DIVISION ]; then
   perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm;
 fi
 
+
+
 # add plugins if this is an ensemblgenomes site
 if ! [ -z $EG_DIVISION ]; then
   EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
@@ -130,6 +132,10 @@ if ! [ -z $EG_DIVISION ]; then
   EG_API_PLUGIN="  'EG::API' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/ensemblgenomes-api',"
   EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
   perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_API_PLUGIN\n$EG_COMMON_PLUGIN/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
+
+  # ! hack
+  # remove DATABASE_METADATA from MULTI.ini
+  perl -p -i -e "s/^\s*DATABASE_METADATA\s*=.*/DATABASE_METADATA = /" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 fi
 
 # begin writing SiteDefs.pm
@@ -148,7 +154,6 @@ mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
 cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/placeholder.png
 
 # use SPECIES_DBS to populate Primary/Secondary species
-# ! todo - also generate Genus_species.ini files
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
 PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
 PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
