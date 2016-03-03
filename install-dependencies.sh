@@ -3,7 +3,7 @@
 # check script was called correctly
 INI=$1
 if [ -z $INI ]; then
-  echo "Usage: './install-prerequisites.sh <filename.ini>'\n";
+  echo "Usage: './install-dependencies.sh <filename.ini>'\n";
   exit 1
 fi
 
