@@ -82,11 +82,19 @@ edit ``[DATABASE]`` and ``[DATA_SOURCE]`` stanzas in ``my.ini``. Any variables
 
 ### Step 3: Update Ensembl code
 
+edit ``[DATABASE]``, ``[REPOSITORIES]`` and ``[DATA_SOURCE]`` stanzas in
+  ``my.ini``. Only species databases listed in ``SPECIES_DBS`` will be included
+  in the site.
+
 ```bash
 ./update-ensembl-code.sh my.ini
 ```
 
 ### Step 4: Reload Ensembl site
+
+Edit the generated configuration files in ``$SERVER_ROOT/public-plugins/mirror/conf``
+  and html/image files in ``$SERVER_ROOT/public-plugins/mirror/htdocs`` if
+  required then (re)load the website.
 
 ```bash
 ./reload-ensembl-site.sh my.ini
