@@ -23,7 +23,7 @@ ROOT_CONNECT="mysql -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
 IMPORT_CONNECT="mysqlimport -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
 
 # test whether we can connect and throw error if not
-$ROOT_CONNECT -e "SHOW DATABASES";
+$ROOT_CONNECT -e "SHOW DATABASES" > /dev/null;
 if ! [ $? -eq 0 ]; then
     printf "ERROR: Unable to connect to mysql server as root.\n       Check connection settings in $INI\n"
     exit 1;
