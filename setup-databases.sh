@@ -7,9 +7,6 @@ if [ -z $INI ]; then
   exit 1
 fi
 
-# install mysql-server
-apt-get -y install mysql-server mysql-common mysql-client
-
 # set database port, user and password variables from ini file
 DB_ROOT_PASSWORD=$(awk -F "=" '/DB_ROOT_PASSWORD/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
@@ -23,9 +20,10 @@ DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 ROOT_CONNECT="mysql -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
 IMPORT_CONNECT="mysqlimport -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
 
-# if DB_PORT is not 3306 test whether we can connect and throw error if not
+# test whether we can connect and throw error if not
+$ROOT_CONNECT -e "SHOW DATABASES";
 if ! [ $? -eq 0 ]; then
-    echo "ERROR: unable to connect to mysql server"
+    printf "ERROR: Unable to connect to mysql server as root.\n       Check connection settings in $INI\n"
     exit 1;
 fi
 
@@ -53,6 +51,7 @@ if ! [ -z $DB_WEBSITE_USER  ]; then
 fi
 $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE$WEBSITE_USER_CREATE"
 
+# ! todo: move db loading into function
 # fetch and load ensembl website databases
 ENSEMBL_DB_URL=$(awk -F "=" '/ENSEMBL_DB_URL/ {print $2}' $INI | tr -d ' ')
 ENSEMBL_DBS=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
@@ -110,6 +109,42 @@ if ! [ -z $SPECIES_DB_URL ]; then
     PROTOCOL="$(echo $SPECIES_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
     URL="$(echo ${SPECIES_DB_URL/$PROTOCOL/})"
     wget -r $SPECIES_DB_URL/$DB
+    mv $URL/* ./
+    gunzip $DB/*sql.gz
+
+    # load sql into database
+    $ROOT_CONNECT $DB < $DB/$DB.sql
+
+    # load data into database one file at a time to reduce disk space used
+    for ZIPPED_FILE in $DB/*.txt.gz
+    do
+      gunzip $ZIPPED_FILE
+      FILE=${ZIPPED_FILE%.*}
+      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
+      rm $FILE
+    done
+
+    # remove remaining downloaded data
+    rm -r $DB
+  done
+  cd $CURRENTDIR
+fi
+
+# fetch and load any other databases
+MISC_DB_URL=$(awk -F "=" '/MISC_DB_URL/ {print $2}' $INI | tr -d ' ')
+MISC_DBS=$(awk -F "=" '/MISC_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+if ! [ -z $MISC_DB_URL ]; then
+  CURRENTDIR=`pwd`
+  cd /tmp
+  for DB in $MISC_DBS
+  do
+    # create local database
+    $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
+
+    # fetch and unzip sql/data
+    PROTOCOL="$(echo $MISC_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    URL="$(echo ${MISC_DB_URL/$PROTOCOL/})"
+    wget -r $MISC_DB_URL/$DB
     mv $URL/* ./
     gunzip $DB/*sql.gz
 
