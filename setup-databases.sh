@@ -8,7 +8,9 @@ if [ -z $INI ]; then
 fi
 
 # set database port, user and password variables from ini file
+DB_ROOT_USER=$(awk -F "=" '/DB_ROOT_USER/ {print $2}' $INI | tr -d ' ')
 DB_ROOT_PASSWORD=$(awk -F "=" '/DB_ROOT_PASSWORD/ {print $2}' $INI | tr -d ' ')
+DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
 DB_USER=$(awk -F "=" '/DB_USER/ {print $2}' $INI | tr -d ' ')
 DB_PASS=$(awk -F "=" '/DB_PASS/ {print $2}' $INI | tr -d ' ')
