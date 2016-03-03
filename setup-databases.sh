@@ -102,6 +102,42 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
   cd $CURRENTDIR
 fi
 
+# fetch and load Ensembl Genomes databases
+EG_DB_URL=$(awk -F "=" '/EG_DB_URL/ {print $2}' $INI | tr -d ' ')
+EG_DBS=$(awk -F "=" '/EG_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+if ! [ -z $EG_DB_URL ]; then
+  CURRENTDIR=`pwd`
+  cd /tmp
+  for DB in $EG_DBS
+  do
+    # create local database
+    $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
+
+    # fetch and unzip sql/data
+    PROTOCOL="$(echo $EG_DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    URL="$(echo ${EG_DB_URL/$PROTOCOL/})"
+    wget -r $EG_DB_URL/$DB
+    mv $URL/* ./
+    gunzip $DB/*sql.gz
+
+    # load sql into database
+    $ROOT_CONNECT $DB < $DB/$DB.sql
+
+    # load data into database one file at a time to reduce disk space used
+    for ZIPPED_FILE in $DB/*.txt.gz
+    do
+      gunzip $ZIPPED_FILE
+      FILE=${ZIPPED_FILE%.*}
+      $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
+      rm $FILE
+    done
+
+    # remove remaining downloaded data
+    rm -r $DB
+  done
+  cd $CURRENTDIR
+fi
+
 # fetch and load species databases
 SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $INI | tr -d ' ')
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
