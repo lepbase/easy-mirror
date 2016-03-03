@@ -137,6 +137,9 @@ if ! [ -z $WEB_USER_NAME ]; then
           --disabled-password
   echo "$WEB_USER_NAME:$WEB_USER_PASS" | chpasswd
 
-  # change ownership of $SERVER_ROOT to eguser
+  # change ownership of $SERVER_ROOT to $WEB_USER_NAME
   chown $WEB_USER_NAME:$WEB_USER_NAME $SERVER_ROOT
+else
+  # change ownership of $SERVER_ROOT to $USER
+  chown $USER:$USER $SERVER_ROOT
 fi
