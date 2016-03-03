@@ -17,8 +17,8 @@ DB_WEBSITE_PASS=$(awk -F "=" '/DB_WEBSITE_PASS/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 
-ROOT_CONNECT="mysql -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
-IMPORT_CONNECT="mysqlimport -uroot -p$DB_ROOT_PASSWORD -P$DB_PORT"
+ROOT_CONNECT="mysql -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
+IMPORT_CONNECT="mysqlimport -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
 
 # test whether we can connect and throw error if not
 $ROOT_CONNECT -e "SHOW DATABASES";
