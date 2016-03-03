@@ -168,7 +168,7 @@ do
   echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
   # add to DEFAULT_FAVOURITES
-  DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_LOWER"
+  DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
 
   # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
   if [ -z $EG_DIVISION ]; then
