@@ -132,10 +132,6 @@ if ! [ -z $EG_DIVISION ]; then
   EG_API_PLUGIN="  'EG::API' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/ensemblgenomes-api',"
   EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
   perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_API_PLUGIN\n$EG_COMMON_PLUGIN/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
-
-  # ! hack
-  # remove DATABASE_METADATA from MULTI.ini
-  perl -p -i -e "s/^\s*DATABASE_METADATA\s*=.*/DATABASE_METADATA = /" $SERVER_ROOT/eg-web-common/conf/ini-files/MULTI.ini
 fi
 
 # begin writing SiteDefs.pm
