@@ -38,32 +38,32 @@ if [ -d $SERVER_ROOT ]; then
 fi
 
 # call git update for each Ensembl repository:
-ENSEMBL_REPO=$(awk -F "=" '/ENSEMBL_REPO/ {print $2}' $INI | tr -d ' ')
+ENSEMBL_URL=$(awk -F "=" '/ENSEMBL_URL/ {print $2}' $INI | tr -d ' ')
 ENSEMBL_BRANCH=$(awk -F "=" '/ENSEMBL_BRANCH/ {print $2}' $INI | tr -d ' ')
-git_update $SERVER_ROOT/ensembl $ENSEMBL_REPO/ensembl.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-compara $ENSEMBL_REPO/ensembl-compara.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-funcgen $ENSEMBL_REPO/ensembl-funcgen.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-orm $ENSEMBL_REPO/ensembl-orm.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-variation $ENSEMBL_REPO/ensembl-variation.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-webcode $ENSEMBL_REPO/ensembl-webcode.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/ensembl-io $ENSEMBL_REPO/ensembl-io.git $ENSEMBL_BRANCH
-git_update $SERVER_ROOT/public-plugins $ENSEMBL_REPO/public-plugins.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl $ENSEMBL_URL/ensembl.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-compara $ENSEMBL_URL/ensembl-compara.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-funcgen $ENSEMBL_URL/ensembl-funcgen.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-orm $ENSEMBL_URL/ensembl-orm.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-variation $ENSEMBL_URL/ensembl-variation.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-webcode $ENSEMBL_URL/ensembl-webcode.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/ensembl-io $ENSEMBL_URL/ensembl-io.git $ENSEMBL_BRANCH
+git_update $SERVER_ROOT/public-plugins $ENSEMBL_URL/public-plugins.git $ENSEMBL_BRANCH
 
-EG_REPO=$(awk -F "=" '/EG_REPO/ {print $2}' $INI | tr -d ' ')
-if ! [ -z $EG_REPO ]; then
+EG_URL=$(awk -F "=" '/EG_URL/ {print $2}' $INI | tr -d ' ')
+if ! [ -z $EG_URL ]; then
   # call git update for each EnsemblGenomes repository:
   EG_BRANCH=$(awk -F "=" '/EG_BRANCH/ {print $2}' $INI | tr -d ' ')
   EG_DIVISION=$(awk -F "=" '/EG_DIVISION/ {print $2}' $INI | tr -d ' ')
-  git_update $SERVER_ROOT/eg-web-common $EG_REPO/eg-web-common.git $EG_BRANCH
-  git_update $SERVER_ROOT/ensemblgenomes-api $EG_REPO/ensemblgenomes-api.git $EG_BRANCH
-  git_update $SERVER_ROOT/eg-web-search $EG_REPO/eg-web-search.git $EG_BRANCH
-  git_update $SERVER_ROOT/eg-web-metazoa $EG_REPO/$EG_DIVISION.git $EG_BRANCH
+  git_update $SERVER_ROOT/eg-web-common $EG_URL/eg-web-common.git $EG_BRANCH
+  git_update $SERVER_ROOT/ensemblgenomes-api $EG_URL/ensemblgenomes-api.git $EG_BRANCH
+  git_update $SERVER_ROOT/eg-web-search $EG_URL/eg-web-search.git $EG_BRANCH
+  git_update $SERVER_ROOT/eg-web-metazoa $EG_URL/$EG_DIVISION.git $EG_BRANCH
 fi
 
 # call git update for bioperl-live
-BIOPERL_REPO=$(awk -F "=" '/BIOPERL_REPO/ {print $2}' $INI | tr -d ' ')
+BIOPERL_URL=$(awk -F "=" '/BIOPERL_URL/ {print $2}' $INI | tr -d ' ')
 BIOPERL_BRANCH=$(awk -F "=" '/BIOPERL_BRANCH/ {print $2}' $INI | tr -d ' ')
-git_update $SERVER_ROOT/bioperl-live $BIOPERL_REPO/bioperl-live.git $BIOPERL_BRANCH
+git_update $SERVER_ROOT/bioperl-live $BIOPERL_URL/bioperl-live.git $BIOPERL_BRANCH
 
 # create logs and tmp directories
 if [ ! -d $SERVER_ROOT/logs ]; then
