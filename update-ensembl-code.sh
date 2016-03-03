@@ -135,7 +135,7 @@ if ! [ -z $EG_DIVISION ]; then
 
   # ! hack
   # remove DATABASE_METADATA from MULTI.ini
-  perl -p -i -e "s/^\s*DATABASE_METADATA\s*=.*/DATABASE_METADATA = /" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+  perl -p -i -e "s/^\s*DATABASE_METADATA\s*=.*/DATABASE_METADATA = /" $SERVER_ROOT/eg-web-common/conf/ini-files/MULTI.ini
 fi
 
 # begin writing SiteDefs.pm
