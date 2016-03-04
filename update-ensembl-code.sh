@@ -24,6 +24,43 @@ function git_update(){
   cd $CWD
 }
 
+function db_connection_test(){
+  # species_db_fallback <db-name> <host> <port> <user> <pass>
+  DB_CONNECT="mysql -u$2 -h$3 -P$4 $1"
+  if ! [ -z $5 ]; then
+    DB_CONNECT="$DB_CONNECT -p "
+  fi
+  $DB_CONNECT -e "" &> /dev/null;
+  DB_CONNECT_RESULT=$?
+}
+
+function species_db_fallback(){
+  # species_db_fallback <db-name>
+  TEST_HOST=$DB_HOST
+  TEST_PORT=$DB_PORT
+  TEST_USER=$DB_USER
+  TEST_PASS=$DB_PASS
+  db_connection_test $1 $TEST_HOST $TEST_PORT $TEST_USER $TEST_PASS
+  if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+    if ! [ -z $DB_FALLBACK_HOST ]; then
+      TEST_HOST=$DB_FALLBACK_HOST
+      TEST_PORT=$DB_FALLBACK_PORT
+      TEST_USER=$DB_FALLBACK_USER
+      TEST_PASS=$DB_FALLBACK_PASS
+      db_connection_test $1 $TEST_HOST $TEST_PORT $TEST_USER $TEST_PASS
+      if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+        if ! [ -z $DB_FALLBACK2_HOST ]; then
+          TEST_HOST=$DB_FALLBACK2_HOST
+          TEST_PORT=$DB_FALLBACK2_PORT
+          TEST_USER=$DB_FALLBACK2_USER
+          TEST_PASS=$DB_FALLBACK2_PASS
+          db_connection_test $1 $TEST_HOST $TEST_PORT $TEST_USER $TEST_PASS
+        fi
+      fi
+    fi
+  fi
+}
+
 # set directory names
 CWD=$(pwd)
 SERVER_ROOT=$(awk -F "=" '/SERVER_ROOT/ {print $2}' $INI | tr -d ' ')
@@ -149,8 +186,20 @@ mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48
 mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
 cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/placeholder.png
 
+# set DB_FALLBACK variables
+DB_FALLBACK_HOST=$(awk -F "=" '/DB_FALLBACK_HOST/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK_PORT=$(awk -F "=" '/DB_FALLBACK_PORT/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK_USER=$(awk -F "=" '/DB_FALLBACK_USER/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK_PASS=$(awk -F "=" '/DB_FALLBACK_PASS/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK2_HOST=$(awk -F "=" '/DB_FALLBACK2_HOST/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK2_PORT=$(awk -F "=" '/DB_FALLBACK2_PORT/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK2_USER=$(awk -F "=" '/DB_FALLBACK2_USER/ {print $2}' $INI | tr -d ' ')
+DB_FALLBACK2_PASS=$(awk -F "=" '/DB_FALLBACK2_PASS/ {print $2}' $INI | tr -d ' ')
+
+
 # use SPECIES_DBS to populate Primary/Secondary species
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $INI | tr -d '[' | tr -d ']')
 PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
 PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
 SECONDARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 2 | awk -F'_core_' '{print $1}'`
@@ -164,6 +213,14 @@ echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary sp
 DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = ["
 for DB in $SPECIES_DBS
 do
+  # test whether we can connect to this DB
+  species_db_fallback $DB $DB_TYPE
+  if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+    echo "ERROR: unable to connect to database $DB"
+    continue
+  else
+    echo "Connected to database $DB on $TEST_HOST"
+  fi
   SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
   SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
   echo "  \$SiteDefs::__species_aliases{ '$SP_UC_FIRST' } = [qw($SP_LOWER)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
@@ -193,6 +250,19 @@ do
   fi
 
   perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+
+  for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
+  do
+    NEW_DB=${$1/_core_/_${2}_}
+    species_db_fallback $NEW_DB $DB_TYPE
+    if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+      echo "ERROR: unable to connect to database $DB"
+      continue
+    else
+      echo "Connected to database $DB on $TEST_HOST"
+    fi
+  done
+
 done
 DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
 
