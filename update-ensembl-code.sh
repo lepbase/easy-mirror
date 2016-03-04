@@ -219,7 +219,7 @@ do
     echo "ERROR: unable to connect to database $DB"
     continue
   else
-    echo "Connected to database $DB on $TEST_HOST"
+    echo "Connection to $NEW_DB on $TEST_HOST successful"
   fi
   SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
   SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
@@ -228,38 +228,43 @@ do
   # add to DEFAULT_FAVOURITES
   DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
 
-  # copy/create a Genus_species.ini file in mirror/conf/ini-files and add/copy species images and about pages
+  # add/copy species images and about pages
   if [ -z $EG_DIVISION ]; then
     # ensembl mirror so look for existing files
-    if [ -e "$SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini" ]; then
-      cp $SERVER_ROOT/public-plugins/ensembl/conf/ini-files/$SP_UC_FIRST.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+    if [ -e "$SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/64/$SP_UC_FIRST.ini" ]; then
       cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/16/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
       cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/48/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
       cp $SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/64/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     else
-      cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
       cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
       cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
       cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     fi
   else
-    cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/Genus_species.ini $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
     cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
     cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
     cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
   fi
 
-  perl -p -i -e "s/^.*DATABASE_CORE.*=.*/DATABASE_CORE = $DB/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+  # create a Genus_species.ini file in mirror/conf/ini-files
+  printf "[general]\n\n[ENSEMBL_STYLE]\n\n[ENSEMBL_COLOURS]\n\n[databases]\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+  printf "DATABASE_CORE = $DB\n#OTHER_DATABASES\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+  # !add database connection parameters to Genus_species.ini
+  printf "\n[DATABASE_CORE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
 
+  # attempt to add additional database types
   for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
   do
     NEW_DB=${DB/_core_/_${DB_TYPE}_}
     species_db_fallback $NEW_DB $DB_TYPE
     if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
-      echo "ERROR: unable to connect to database $DB"
-      continue
+      echo "WARNING: unable to connect to database $DB"
     else
-      echo "Connected to database $DB on $TEST_HOST"
+      echo "Connection to $NEW_DB on $TEST_HOST successful"
+      UC_TYPE=${DB_TYPE^^}
+      # add database connection parameters to Genus_species.ini
+      printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      perl -p -i -e "s/(.#OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
     fi
   done
 
