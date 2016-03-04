@@ -50,13 +50,13 @@ if ! [ -z $DB_USER  ]; then
 fi
 $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE"
 
-# ! todo: move db loading into function
 function load_db(){
   #load_db <remote_url> <db_name> [overwrite_flag]
 
   DB_URL=$1
   DB=$2
   FLAG=$3
+  URL_EXISTS=1
 
   if ! [ -z $FLAG ]; then
     # don't overwrite database if it already exists
@@ -66,13 +66,18 @@ function load_db(){
     fi
   fi
 
+  # test whether database dump exists at DB_URL
+  wget -q --spider $DB_URL/$DB
+  if ! [ $? -eq 0 ]; then
+    URL_EXISTS=
+    return
+  fi
+
   # create local database
   $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 
   # fetch and unzip sql/data
-  PROTOCOL="$(echo $DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-  URL="$(echo ${DB_URL/$PROTOCOL/})"
-  wget -r $DB_URL/$DB
+  wget -q -r $DB_URL/$DB
   mv $URL/* ./
   gunzip $DB/*sql.gz
 
@@ -104,6 +109,9 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
   for DB in $ENSEMBL_DBS
   do
     load_db $ENSEMBL_DB_URL $DB $ENSEMBL_DB_REPLACE
+    if [ -z $URL_EXISTS ]; then
+      echo "ERROR: Unable to find database dump at $ENSEMBL_DB_URL/$DB"
+    fi
   done
 fi
 
@@ -115,18 +123,33 @@ if ! [ -z $EG_DB_URL ]; then
   for DB in $EG_DBS
   do
     load_db $EG_DB_URL $DB $EG_DB_REPLACE
+    if [ -z $URL_EXISTS ]; then
+      echo "ERROR: Unable to find database dump at $EG_DB_URL/$DB"
+    fi
   done
 fi
 
 # fetch and load species databases
 SPECIES_DB_REPLACE=$(awk -F "=" '/SPECIES_DB_REPLACE/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
-SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
 SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 if ! [ -z $SPECIES_DB_URL ]; then
   for DB in $SPECIES_DBS
   do
     load_db $SPECIES_DB_URL $DB $SPECIES_DB_REPLACE
+    if [ -z $URL_EXISTS ]; then
+      echo "ERROR: Unable to find database dump at $SPECIES_DB_URL/$DB"
+    fi
+    if ! [ -z "$SPECIES_DB_AUTO_EXPAND" ]; then
+      # auto-expand core with DB types in list
+      for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
+      do
+        NEW_DB=${DB/_core_/_${DB_TYPE}_}
+        # attempt to fetch and load db
+        load_db $SPECIES_DB_URL $NEW_DB $SPECIES_DB_REPLACE
+      done
+    fi
   done
 fi
 
@@ -138,6 +161,9 @@ if ! [ -z $MISC_DB_URL ]; then
   for DB in $MISC_DBS
   do
     load_db $MISC_DB_URL $DB $MISC_DB_REPLACE
+    if [ -z $URL_EXISTS ]; then
+      echo "ERROR: Unable to find database dump at $MISC_DB_URL/$DB"
+    fi
   done
 fi
 
