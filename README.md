@@ -9,7 +9,7 @@ Code to make it easy to install an [EnsEMBL](http://ensembl.org) webserver on a
 
 ## Quick instructions
 
-These instructions will get you started with an Ensembl mirror of Human and
+These instructions will get you started with an Ensembl mirror of human and
   mouse using locally hosted core databases with the remaining data loaded
   from the ensembl public mysql servers.
 
