@@ -219,7 +219,7 @@ do
     echo "ERROR: unable to connect to database $DB"
     continue
   else
-    echo "Connection to $NEW_DB on $TEST_HOST successful"
+    echo "Connection to $DB on $TEST_HOST successful"
   fi
   SP_LOWER=`echo $DB | awk -F'_core_' '{print $1}'`
   SP_UC_FIRST="$(tr '[:lower:]' '[:upper:]' <<< ${SP_LOWER:0:1})${SP_LOWER:1}"
