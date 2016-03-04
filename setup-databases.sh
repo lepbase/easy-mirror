@@ -61,7 +61,7 @@ function load_db(){
   if ! [ -z $FLAG ]; then
     # don't overwrite database if it already exists
     $ROOT_CONNECT -e "USE $DB" &> /dev/null
-    if [ -z $FLAG ]; then
+    if [ $? -eq 0 ]; then
       return
     fi
   fi
