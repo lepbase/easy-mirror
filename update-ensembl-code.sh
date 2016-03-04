@@ -111,29 +111,8 @@ if [ ! -d $SERVER_ROOT/tmp ]; then
 fi
 
 # move some *-dist files ready for editing
-#cp $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm-dist $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini-dist $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 cp $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm-dist $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
-
-# set multi-species database connection parameters
-printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n  DATABASE_ARCHIVE = ensembl_archive\n  DATABASE_WEBSITE = ensembl_website\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-
-DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
-DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
-DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
-DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
-printf "[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-printf "[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-
-DB_WEBSITE_HOST=$(awk -F "=" '/DB_WEBSITE_HOST/ {print $2}' $INI | tr -d ' ')
-DB_WEBSITE_PORT=$(awk -F "=" '/DB_WEBSITE_PORT/ {print $2}' $INI | tr -d ' ')
-DB_WEBSITE_USER=$(awk -F "=" '/DB_WEBSITE_USER/ {print $2}' $INI | tr -d ' ')
-DB_WEBSITE_PASS=$(awk -F "=" '/RDB_WEBSITE_PASS/ {print $2}' $INI | tr -d ' ')
-printf "[DATABASE_ARCHIVE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-printf "[DATABASE_WEBSITE]\n  USER = $DB_WEBSITE_USER \n  HOST = $DB_WEBSITE_HOST\n  PORT = $DB_WEBSITE_PORT\n  PASS = $DB_WEBSITE_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-
-perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 # set species core database connection parameters
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
@@ -144,6 +123,8 @@ perl -p -i -e "s/^\s*DATABASE_HOST\s*=.*/DATABASE_HOST = $DB_HOST/" $SERVER_ROOT
 perl -p -i -e "s/^\s*DATABASE_HOST_PORT\s*=.*/DATABASE_HOST_PORT = $DB_PORT/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $DB_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $DB_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+#perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+#perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 # set path to Microsoft truetype fonts
 perl -p -i -e "s/^.*GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
@@ -211,10 +192,11 @@ echo "  map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__spec
 echo "  \$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = ["
+# loop through all SPECIES_DBS to test DB connections and generate config files
 for DB in $SPECIES_DBS
 do
   # test whether we can connect to this DB
-  species_db_fallback $DB $DB_TYPE
+  species_db_fallback $DB
   if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
     echo "ERROR: unable to connect to database $DB"
     continue
@@ -256,9 +238,9 @@ do
   for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
   do
     NEW_DB=${DB/_core_/_${DB_TYPE}_}
-    species_db_fallback $NEW_DB $DB_TYPE
+    species_db_fallback $NEW_DB
     if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
-      echo "WARNING: unable to connect to database $DB"
+      echo "WARNING: unable to connect to database $NEW_DB"
     else
       echo "Connection to $NEW_DB on $TEST_HOST successful"
       UC_TYPE=${DB_TYPE^^}
@@ -276,3 +258,36 @@ printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # update default favourites list
 printf "\n[general]\n$DEFAULT_FAVOURITES" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+
+# set multi-species database connection parameters
+printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n#OTHER_DATABASE\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+
+DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
+printf "\n[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "\n[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+
+# ! todo: test/set connection parameters to each db in MULTI_DBS
+MULTI_DBS=$(awk -F "=" '/MULTI_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+for DB in $MULTI_DBS
+do
+  species_db_fallback $DB
+  if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+    echo "WARNING: unable to connect to database $DB"
+  else
+    echo "Connection to $DB on $TEST_HOST successful"
+    LC_COLLATE=C
+    DB_TYPE=${DB/ensembl_/}
+    DB_TYPE=${DB_TYPE//_[0-9]/}
+    DB_TYPE=${DB_TYPE//[0-9]/}
+    UC_TYPE=${DB_TYPE^^}
+    if [ $UC_TYPE = "ONTOLOGY" ]; then
+      UC_TYPE="GO"
+    fi
+    # add database connection parameters to Genus_species.ini
+    printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+  fi
+done
