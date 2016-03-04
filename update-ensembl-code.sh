@@ -250,7 +250,7 @@ do
   printf "[general]\n\n[ENSEMBL_STYLE]\n\n[ENSEMBL_COLOURS]\n\n[databases]\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
   printf "DATABASE_CORE = $DB\n#OTHER_DATABASES\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
   # !add database connection parameters to Genus_species.ini
-  printf "\n[DATABASE_CORE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+  printf "\n[DATABASE_CORE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
 
   # attempt to add additional database types
   for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
@@ -263,8 +263,8 @@ do
       echo "Connection to $NEW_DB on $TEST_HOST successful"
       UC_TYPE=${DB_TYPE^^}
       # add database connection parameters to Genus_species.ini
-      printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
-      perl -p -i -e "s/(.#OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\$1\n/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
     fi
   done
 
