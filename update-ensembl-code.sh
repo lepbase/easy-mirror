@@ -269,7 +269,7 @@ DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 printf "\n[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 printf "\n[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 
-# ! todo: test/set connection parameters to each db in MULTI_DBS
+# test/set connection parameters to each db in MULTI_DBS
 MULTI_DBS=$(awk -F "=" '/MULTI_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
 for DB in $MULTI_DBS
 do
