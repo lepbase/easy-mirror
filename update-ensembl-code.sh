@@ -253,7 +253,7 @@ do
 
   for DB_TYPE in $SPECIES_DB_AUTO_EXPAND
   do
-    NEW_DB=${$1/_core_/_${2}_}
+    NEW_DB=${DB/_core_/_${DB_TYPE}_}
     species_db_fallback $NEW_DB $DB_TYPE
     if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
       echo "ERROR: unable to connect to database $DB"
