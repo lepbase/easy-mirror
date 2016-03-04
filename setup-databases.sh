@@ -57,11 +57,13 @@ function load_db(){
   DB=$2
   FLAG=$3
   URL_EXISTS=1
+  echo Working on $DB_URL/$DB
 
   if [ -z $FLAG ]; then
     # don't overwrite database if it already exists
     $ROOT_CONNECT -e "USE $DB" &> /dev/null
     if [ $? -eq 0 ]; then
+      echo "  $DB exists, not overwriting"
       return
     fi
   fi
@@ -70,6 +72,7 @@ function load_db(){
   wget -q --spider $DB_URL/$DB
   if ! [ $? -eq 0 ]; then
     URL_EXISTS=
+    echo "  no dump available"
     return
   fi
 
