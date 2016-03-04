@@ -69,7 +69,7 @@ function load_db(){
   fi
 
   # test whether database dump exists at DB_URL
-  wget -q --spider $DB_URL/$DB
+  wget -q --spider $DB_URL/$DB/$DB.sql.gz
   if ! [ $? -eq 0 ]; then
     URL_EXISTS=
     echo "  no dump available"
