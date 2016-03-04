@@ -97,9 +97,9 @@ CURRENTDIR=`pwd`
 cd /tmp
 
 # fetch and load ensembl website databases
-ENSEMBL_DB_REPLACE=$(awk -F "=" '/ENSEMBL_DB_REPLACE/ {print $2}' $INI | tr -d ' ')
-ENSEMBL_DB_URL=$(awk -F "=" '/ENSEMBL_DB_URL/ {print $2}' $INI | tr -d ' ')
-ENSEMBL_DBS=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+ENSEMBL_DB_REPLACE=$(awk -F "=" '/ENSEMBL_DB_REPLACE/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+ENSEMBL_DB_URL=$(awk -F "=" '/ENSEMBL_DB_URL/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+ENSEMBL_DBS=$(awk -F "=" '/ENSEMBL_DBS/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 if ! [ -z $ENSEMBL_DB_URL ]; then
   for DB in $ENSEMBL_DBS
   do
@@ -108,9 +108,9 @@ if ! [ -z $ENSEMBL_DB_URL ]; then
 fi
 
 # fetch and load EnsemblGenomes databases
-EG_DB_REPLACE=$(awk -F "=" '/EG_DB_REPLACE/ {print $2}' $INI | tr -d ' ')
-EG_DB_URL=$(awk -F "=" '/EG_DB_URL/ {print $2}' $INI | tr -d ' ')
-EG_DBS=$(awk -F "=" '/EG_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+EG_DB_REPLACE=$(awk -F "=" '/EG_DB_REPLACE/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+EG_DB_URL=$(awk -F "=" '/EG_DB_URL/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+EG_DBS=$(awk -F "=" '/EG_DBS/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 if ! [ -z $EG_DB_URL ]; then
   for DB in $EG_DBS
   do
@@ -119,10 +119,10 @@ if ! [ -z $EG_DB_URL ]; then
 fi
 
 # fetch and load species databases
-SPECIES_DB_REPLACE=$(awk -F "=" '/SPECIES_DB_REPLACE/ {print $2}' $INI | tr -d ' ')
-SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $INI | tr -d ' ')
-SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $INI | tr -d ' ')
-SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+SPECIES_DB_REPLACE=$(awk -F "=" '/SPECIES_DB_REPLACE/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+SPECIES_DB_URL=$(awk -F "=" '/SPECIES_DB_URL/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 if ! [ -z $SPECIES_DB_URL ]; then
   for DB in $SPECIES_DBS
   do
@@ -131,12 +131,11 @@ if ! [ -z $SPECIES_DB_URL ]; then
 fi
 
 # fetch and load any other databases
-MISC_DB_REPLACE=$(awk -F "=" '/MISC_DB_REPLACE/ {print $2}' $INI | tr -d ' ')
-MISC_DB_URL=$(awk -F "=" '/MISC_DB_URL/ {print $2}' $INI | tr -d ' ')
-MISC_DBS=$(awk -F "=" '/MISC_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+MISC_DB_REPLACE=$(awk -F "=" '/MISC_DB_REPLACE/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+MISC_DB_URL=$(awk -F "=" '/MISC_DB_URL/ {print $2}' $CURRENTDIR/$INI | tr -d ' ')
+MISC_DBS=$(awk -F "=" '/MISC_DBS/ {print $2}' $CURRENTDIR/$INI | tr -d '[' | tr -d ']')
 if ! [ -z $MISC_DB_URL ]; then
   for DB in $MISC_DBS
-  do
   do
     load_db $MISC_DB_URL $DB $MISC_DB_REPLACE
   done
