@@ -280,7 +280,7 @@ do
     echo "Connection to $DB on $TEST_HOST successful"
     LC_COLLATE=C
     DB_TYPE=${DB/ensembl_/}
-    DB_TYPE=${DB/ensemblgenomes_/}
+    DB_TYPE=${DB_TYPE/ensemblgenomes_/}
     DB_TYPE=${DB_TYPE//_[0-9]/}
     DB_TYPE=${DB_TYPE//[0-9]/}
     UC_TYPE=${DB_TYPE^^}
@@ -293,7 +293,7 @@ do
     if [ $UC_TYPE = "INFO" ]; then
       UC_TYPE="METADATA"
     fi
-    if [ `echo $UC_TYPE | cut -d'_' -f 2` = "PAN" ]; then
+    if [ $UC_TYPE = "COMPARA_PAN_HOMOLOGY" ]; then
       UC_TYPE="COMPARA_PAN_ENSEMBL"
     else
       if [ `echo $UC_TYPE | cut -d'_' -f 1` = "COMPARA" ]; then
