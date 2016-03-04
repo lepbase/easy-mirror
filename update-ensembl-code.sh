@@ -295,9 +295,10 @@ do
     fi
     if [ $UC_TYPE = "COMPARA_PAN_HOMOLOGY" ]; then
       UC_TYPE="COMPARA_PAN_ENSEMBL"
-    fi
-    if [ `echo $UC_TYPE | cut -d'_' -f 1` = "COMPARA" ]; then
-      UC_TYPE="COMPARA"
+    else
+      if [ `echo $UC_TYPE | cut -d'_' -f 1` = "COMPARA" ]; then
+        UC_TYPE="COMPARA"
+      fi
     fi
     # add database connection parameters to Genus_species.ini
     printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
