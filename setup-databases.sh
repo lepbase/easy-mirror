@@ -53,23 +53,20 @@ $ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE"
 function load_db(){
   #load_db <remote_url> <db_name> [overwrite_flag]
 
-  DB_URL=$1
-  DB=$2
-  FLAG=$3
   URL_EXISTS=1
-  echo Working on $DB_URL/$DB
+  echo Working on $1/$2
 
-  if [ -z $FLAG ]; then
+  if [ -z $3 ]; then
     # don't overwrite database if it already exists
-    $ROOT_CONNECT -e "USE $DB" &> /dev/null
+    $ROOT_CONNECT -e "USE $2" &> /dev/null
     if [ $? -eq 0 ]; then
-      echo "  $DB exists, not overwriting"
+      echo "  $2 exists, not overwriting"
       return
     fi
   fi
 
   # test whether database dump exists at DB_URL
-  wget -q --spider $DB_URL/$DB/$DB.sql.gz
+  wget -q --spider $1/$2/$2.sql.gz
   if ! [ $? -eq 0 ]; then
     URL_EXISTS=
     echo "  no dump available"
@@ -77,29 +74,29 @@ function load_db(){
   fi
 
   # create local database
-  $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
+  $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $2; CREATE DATABASE $2;"
 
   # fetch and unzip sql/data
-  PROTOCOL="$(echo $DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-  URL="$(echo ${DB_URL/$PROTOCOL/})"
-  wget -q -r $DB_URL/$DB
+  PROTOCOL="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  URL="$(echo ${1/$PROTOCOL/})"
+  wget -q -r $1/$2
   mv $URL/* ./
-  gunzip $DB/*sql.gz
+  gunzip $2/*sql.gz
 
   # load sql into database
-  $ROOT_CONNECT $DB < $DB/$DB.sql
+  $ROOT_CONNECT $2 < $2/$2.sql
 
   # load data into database
-  for ZIPPED_FILE in $DB/*.txt.gz
+  for ZIPPED_FILE in $2/*.txt.gz
   do
     gunzip $ZIPPED_FILE
     FILE=${ZIPPED_FILE%.*}
-    $IMPORT_CONNECT --fields_escaped_by=\\\\ $DB -L $FILE
+    $IMPORT_CONNECT --fields_escaped_by=\\\\ $2 -L $FILE
     rm $FILE
   done
 
   # remove remaining downloaded data
-  rm -r $DB
+  rm -r $2
 }
 
 # move to /tmp while downloading files
