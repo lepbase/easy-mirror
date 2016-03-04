@@ -58,7 +58,7 @@ function load_db(){
   FLAG=$3
   URL_EXISTS=1
 
-  if ! [ -z $FLAG ]; then
+  if [ -z $FLAG ]; then
     # don't overwrite database if it already exists
     $ROOT_CONNECT -e "USE $DB" &> /dev/null
     if [ $? -eq 0 ]; then
