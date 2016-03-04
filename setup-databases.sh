@@ -77,6 +77,8 @@ function load_db(){
   $ROOT_CONNECT -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 
   # fetch and unzip sql/data
+  PROTOCOL="$(echo $DB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  URL="$(echo ${DB_URL/$PROTOCOL/})"
   wget -q -r $DB_URL/$DB
   mv $URL/* ./
   gunzip $DB/*sql.gz
