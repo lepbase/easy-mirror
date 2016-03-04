@@ -26,7 +26,7 @@ function git_update(){
 
 function db_connection_test(){
   # species_db_fallback <db-name> <host> <port> <user> <pass>
-  DB_CONNECT="mysql -u$2 -h$3 -P$4 $1"
+  DB_CONNECT="mysql -u$2 -P$3 -h$4 $1"
   if ! [ -z $5 ]; then
     DB_CONNECT="$DB_CONNECT -p "
   fi
