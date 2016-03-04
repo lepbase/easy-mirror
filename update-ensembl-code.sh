@@ -280,6 +280,7 @@ do
     echo "Connection to $DB on $TEST_HOST successful"
     LC_COLLATE=C
     DB_TYPE=${DB/ensembl_/}
+    DB_TYPE=${DB/ensemblgenomes_/}
     DB_TYPE=${DB_TYPE//_[0-9]/}
     DB_TYPE=${DB_TYPE//[0-9]/}
     UC_TYPE=${DB_TYPE^^}
@@ -288,6 +289,15 @@ do
     fi
     if [ $UC_TYPE = "ANCESTRAL" ]; then
       UC_TYPE="CORE"
+    fi
+    if [ $UC_TYPE = "INFO" ]; then
+      UC_TYPE="METADATA"
+    fi
+    if [ $UC_TYPE = "COMPARA_PAN_HOMOLOGY" ]; then
+      UC_TYPE="COMPARA_PAN_ENSEMBL"
+    fi
+    if [ `echo $UC_TYPE | cut -d'_' -f 1` = "COMPARA" ]; then
+      UC_TYPE="COMPARA"
     fi
     # add database connection parameters to Genus_species.ini
     printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
