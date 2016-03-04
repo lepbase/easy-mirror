@@ -293,7 +293,7 @@ do
     if [ $UC_TYPE = "INFO" ]; then
       UC_TYPE="METADATA"
     fi
-    if [ $UC_TYPE = "COMPARA_PAN_HOMOLOGY" ]; then
+    if [ `echo $UC_TYPE | cut -d'_' -f 2` = "PAN" ]; then
       UC_TYPE="COMPARA_PAN_ENSEMBL"
     else
       if [ `echo $UC_TYPE | cut -d'_' -f 1` = "COMPARA" ]; then
