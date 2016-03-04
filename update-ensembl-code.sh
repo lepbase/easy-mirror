@@ -264,7 +264,7 @@ do
       UC_TYPE=${DB_TYPE^^}
       # add database connection parameters to Genus_species.ini
       printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
-      perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\$1\n/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
+      perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\$1\\\n/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
     fi
   done
 
