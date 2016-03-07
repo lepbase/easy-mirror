@@ -87,3 +87,97 @@ Using separate webserver and database hosts is supported by changing the
   to allow database connections from another server.  Leaving the
   ``ENSEMBL_WEBSITE_HOST`` variable empty will set up users allowed to connect
   from any host.
+
+## Editing the .ini files
+
+### example.ini
+
+Configuration options for steps 1, 3 and 4.
+
+#### [DATABASE]
+
+Four subsections with ``DB_[*_]HOST``, ``DB_[*_]PORT``, ``DB_[*_]USER`` and
+  ``DB_[*_]PASS`` variables specify connection settings for:
+
+* ``DB_HOST`` etc. - the primary database host with species/multi-species
+  databases.
+* ``DB_SESSION_HOST`` etc. - user-specific information, typically the only
+  database to require read-write access and therefore a password protected
+  connection.
+* ``DB_FALLBACK_HOST`` etc. - to reduce the amount of locally hosted data, it is
+  often desirable to use alternate sources for some databases, the
+  ``DB_FALLBACK_HOST`` host will be queried to find any required databases that
+  are not available on ``DB_HOST``
+* ``DB_FALLBACK2_HOST`` etc. - especially with EnsemblGenomes sites, remote
+  databases may be found on more than one host, the ``DB_FALLBACK2_HOST`` host
+  will be queried to find any required databases that are not available on
+  ``DB_HOST`` or ``DB_FALLBACK_HOST``
+
+#### [ENSEMBL_USER]
+
+To set up a non-admin user to run steps 2, 3 and 4, specify ``WEB_USER_NAME``
+  and ``WEB_USER_PASS`` to create a new user with ownership of the
+  ``SERVER_ROOT`` directory
+
+#### [REPOSITORIES]
+
+Connection/branch information for the Github repositories to be cloned
+
+* ``ENSEMBL_URL``/``ENSEMBL_BRANCH`` - Ensembl code
+* ``EG_URL``/``EG_BRANCH`` - (optional) EnsemblGenomes code
+* ``BIOPERL_URL``/``BIOPERL_BRANCH`` - BioPerl code
+
+#### [WEBSITE]
+
+* ``HTTP_PORT`` - port to run the apache webserver on
+  (``reload-ensembl-site.sh``) will need to be run with root privileges if this
+  is set to a value below 1024
+* ``SERVER_ROOT`` - the directory into which all ensembl code will be cloned and
+  from which the site will be run
+
+#### [DATA_SOURCE]
+
+Database names to set up config files for/connect to
+
+* ``SPECIES_DBS`` - a space separated list of ensembl core dbs in square braces
+* ``SPECIES_DB_AUTO_EXPAND`` - to save listing all dbs for a given species this
+  variable may be used to specify a set of replacement strings to attempt to
+  connect to (e.g. specify  ``SPECIES_DBS = [ homo_sapiens_core_83_38 ]`` and ``SPECIES_DB_AUTO_EXPAND = [ variation ]`` to also load the database
+  ``homo_sapiens_variation_83_38``, if it exists on ``DB_HOST`` or a
+  ``DB_FALLBACK_HOST``
+* ``MULTI_DBS`` - a space separated list of multispecies databases in square
+  braces
+
+### database.ini
+
+configuration options for step 2.
+
+#### [DATABASE]
+
+Root user connection details and user names (and passwords) for database users to be created
+
+#### [WEBSITE]
+
+The name of the ``ENSEMBL_WEBSITE_HOST`` host (on which steps 1, 3 and 4 are
+  run) is used when setting up the database users. If this is anything other
+  than ``localhost`` then changes will be required to ``/etc/mysql/my.cnf`` to
+  support external connections
+
+#### [DATA_SOURCE]
+
+Locations and names of database dumps to fetch and load locally.
+
+* ``ENSEMBL_DB_URL`` - the URL containing the Ensembl database dumps
+* ``ENSEMBL_DB_REPLACE`` - a flag to specify whether to overwrite databases that
+  already exist on the ``DB_HOST``
+* ``ENSEMBL_DBS`` - a space separated list of database dump names in square
+  braces. ``ensembl_accounts`` is required, all others are optional
+
+The equivalent variables may be set for ``EG_DB_URL`` to fetch and download
+  EnsemblGenomes database dumps and for ``MISC_DB_URL`` to support situations
+  where the required databases are spread across multiple hosts.
+
+An additional variable may be set for species databases,  
+  ``SPECIES_DB_AUTO_EXPAND`` - a space separated list of database types to use
+  as replacement strings for ``core`` to facilitate downloading multiple
+  database types for each species in ``SPECIES_DBS``
