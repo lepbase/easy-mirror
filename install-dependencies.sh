@@ -12,9 +12,10 @@ fi
 debconf-set-selections <<< 'ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true'
 
 # install most required packages using apt-get install
-apt-get -y mysql-server
-           mysql-common
-           mysql-client
+apt-get install -y \
+           mysql-server \
+           mysql-common \
+           mysql-client \
            libmysqlclient*-dev \
            libgdbm-dev \
            libperl-dev \
@@ -24,6 +25,7 @@ apt-get -y mysql-server
            libevent1-dev \
            acedb-other-dotter \
            make \
+           curl \
            gcc \
            php5-gd \
            freetype* \
