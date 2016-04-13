@@ -119,12 +119,14 @@ DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
 DB_PORT=$(awk -F "=" '/DB_PORT/ {print $2}' $INI | tr -d ' ')
 DB_USER=$(awk -F "=" '/DB_USER/ {print $2}' $INI | tr -d ' ')
 DB_PASS=$(awk -F "=" '/DB_PASS/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
+DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
 perl -p -i -e "s/^\s*DATABASE_HOST\s*=.*/DATABASE_HOST = $DB_HOST/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_HOST_PORT\s*=.*/DATABASE_HOST_PORT = $DB_PORT/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBUSER\s*=.*/DATABASE_DBUSER = $DB_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 perl -p -i -e "s/^\s*DATABASE_DBPASS\s*=.*/DATABASE_DBPASS = $DB_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-#perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-#perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_WRITE_USER\s*=.*/DATABASE_WRITE_USER = $DB_SESSION_USER/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
+perl -p -i -e "s/^\s*DATABASE_WRITE_PASS\s*=.*/DATABASE_WRITE_PASS = $DB_SESSION_PASS/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 # set path to Microsoft truetype fonts
 perl -p -i -e "s/^.*GRAPHIC_TTF_PATH.*=.*/GRAPHIC_TTF_PATH = \/usr\/share\/fonts\/truetype\/msttcorefonts\//" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
