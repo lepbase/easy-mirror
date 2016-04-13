@@ -102,6 +102,22 @@ BIOPERL_URL=$(awk -F "=" '/BIOPERL_URL/ {print $2}' $INI | tr -d ' ')
 BIOPERL_BRANCH=$(awk -F "=" '/BIOPERL_BRANCH/ {print $2}' $INI | tr -d ' ')
 git_update $SERVER_ROOT/bioperl-live $BIOPERL_URL/bioperl-live.git $BIOPERL_BRANCH
 
+# call git update for any plugin repositories
+PLUGIN_URLS=()
+PLUGIN_STRINGS=()
+PLUGIN_URLS+=($(awk -F '=' '/PLUGIN_URL/ {print $1 $2}' $INI | tr -d ' '))
+for str in "${PLUGIN_URLS[@]}"
+do
+  URL=$(echo $str | awk -F"_PLUGIN_URL" '{print $2}')
+  BASENAME=$(basename $URL)
+  NAME=${BASENAME%.*}
+  ID=$(echo $str | awk -F"_PLUGIN_URL" '{print $1}')
+  BRANCH=$(awk -F "=" "/${ID}_PLUGIN_BRANCH/"'{print $2}' $INI | tr -d ' ' )
+  PACKAGE=$(awk -F "=" "/${ID}_PLUGIN_PACKAGE/"'{print $2}' $INI | tr -d ' ' )
+  PLUGIN_STRINGS+=("  '$PACKAGE' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$NAME',")
+  git_update $SERVER_ROOT/$NAME $URL $BRANCH
+done
+
 # create logs and tmp directories
 if [ ! -d $SERVER_ROOT/logs ]; then
   mkdir "$SERVER_ROOT/logs"
@@ -153,6 +169,12 @@ if ! [ -z $EG_DIVISION ]; then
   EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
   perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_API_PLUGIN\n$EG_COMMON_PLUGIN/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
 fi
+
+# add additional plugins if specified
+for str in "${PLUGIN_STRINGS[@]}"
+do
+  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$str\n/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
+done
 
 # begin writing SiteDefs.pm
 printf "package EnsEMBL::Mirror::SiteDefs;\nuse strict;\n\nsub update_conf {" > $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
