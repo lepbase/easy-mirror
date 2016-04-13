@@ -7,6 +7,8 @@ Code to make it easy to install an [EnsEMBL](http://ensembl.org) webserver on a
   minimum footprint, entirely locally hosted data for maximum performance or
   anywhere in between.
 
+[![DOI](https://zenodo.org/badge/20772/lepbase/ensembl-easy.svg)](https://zenodo.org/badge/latestdoi/20772/lepbase/ensembl-easy)
+
 ## Quick instructions
 
 These instructions will get you started with an Ensembl mirror of human and
