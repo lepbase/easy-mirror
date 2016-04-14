@@ -163,7 +163,6 @@ printf "\$SiteDefs::ENSEMBL_PLUGINS = [\n  'EnsEMBL::Mirror' => \$SiteDefs::ENSE
 # add plugins from repositories if specified
 for str in "${PLUGIN_STRINGS[@]}"
 do
-  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$str\n/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
   printf ",\n  $str" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 done
 
@@ -184,6 +183,9 @@ do
   PACKAGE=$(echo $PLUGIN | awk -F "|" '{print $2}' $INI | tr -d ' ' )
   printf ",\n  '$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/public-plugins/$DIR'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 done
+
+# finish writing Plugins.pm
+printf "\n];\n\n1;\n" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 
 # begin writing SiteDefs.pm
 printf "package EnsEMBL::Mirror::SiteDefs;\nuse strict;\n\nsub update_conf {" > $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
