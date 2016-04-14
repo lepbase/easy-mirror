@@ -179,8 +179,8 @@ fi
 PUBLIC_PLUGINS=$(awk -F "=" '/PUBLIC_PLUGINS/ {print $2}' $INI | tr -d '[' | tr -d ']')
 for PLUGIN in $PUBLIC_PLUGINS
 do
-  DIR=$(echo $PLUGIN | awk -F "|" '{print $1}' $INI | tr -d ' ' )
-  PACKAGE=$(echo $PLUGIN | awk -F "|" '{print $2}' $INI | tr -d ' ' )
+  DIR=$(echo $PLUGIN | awk -F "|" '{print $1}' | tr -d ' ' )
+  PACKAGE=$(echo $PLUGIN | awk -F "|" '{print $2}' | tr -d ' ' )
   printf ",\n  '$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/public-plugins/$DIR'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 done
 
