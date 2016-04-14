@@ -116,7 +116,7 @@ do
   BRANCH=$(awk -F "=" "/${ID}_PLUGIN_BRANCH/"'{print $2}' $INI | tr -d ' ' )
   PACKAGE=$(awk -F "=" "/${ID}_PLUGIN_PACKAGE/"'{print $2}' $INI | tr -d ' ' )
   PLUGIN_STRINGS+=("'$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/$NAME'")
-  PLUGIN_DIRS+=("$SERVERROOT/$NAME'")
+  PLUGIN_DIRS+=("$SERVER_ROOT/$NAME")
   git_update $SERVER_ROOT/$NAME $URL $BRANCH
 done
 
@@ -172,7 +172,7 @@ done
 if ! [ -z $EG_DIVISION ]; then
   EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
   EG_DIVISION_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_DIVISION_NAME:0:1})${EG_DIVISION_NAME:1}"
-  PLUGIN_DIRS+=("$SERVERROOT/$EG_DIVISION'")
+  PLUGIN_DIRS+=("$SERVER_ROOT/$EG_DIVISION")
   printf ",\n  'EG::$EG_DIVISION_NAME' => $SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::API' => \$SiteDefs::ENSEMBL_SERVERROOT.'/ensemblgenomes-api'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::Common' => \$SiteDefs::ENSEMBL_SERVERROOT.'/eg-web-common'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
@@ -184,7 +184,7 @@ for PLUGIN in $PUBLIC_PLUGINS
 do
   PLUGIN_DIR=$(echo $PLUGIN | awk -F "|" '{print $1}' | tr -d ' ' )
   PACKAGE=$(echo $PLUGIN | awk -F "|" '{print $2}' | tr -d ' ' )
-  PLUGIN_DIRS+=("$SERVERROOT/public-plugins/$PLUGIN_DIR'")
+  PLUGIN_DIRS+=("$SERVER_ROOT/public-plugins/$PLUGIN_DIR")
   printf ",\n  '$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/public-plugins/$PLUGIN_DIR'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 done
 
@@ -252,16 +252,26 @@ do
   # add/copy species images and about pages
   for PLUGIN_DIR in $PLUGIN_DIRS
   do
-    if [ -e "$SERVER_ROOT/public-plugins/ensembl/htdocs/i/species/64/$SP_UC_FIRST.ini" ]; then
+    if [ -e "$PLUGIN_DIR/htdocs/i/species/16/$SP_UC_FIRST.png" ]; then
       cp $PLUGIN_DIR/htdocs/i/species/16/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
+    fi
+    if [ -e "$PLUGIN_DIR/htdocs/i/species/48/$SP_UC_FIRST.png" ]; then
       cp $PLUGIN_DIR/htdocs/i/species/48/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
+    fi
+    if [ -e "$PLUGIN_DIR/htdocs/i/species/64/$SP_UC_FIRST.png" ]; then
       cp $PLUGIN_DIR/htdocs/i/species/64/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
       break
-      cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
-      cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
-      cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
     fi
   done
+  if [ ! -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png ]; then
+    cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
+  fi
+  if [ ! -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png ]; then
+    cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
+  fi
+  if [ ! -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png ]; then
+    cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
+  fi
 
   # create a Genus_species.ini file in mirror/conf/ini-files
   printf "[general]\n\n[ENSEMBL_STYLE]\n\n[ENSEMBL_COLOURS]\n\n[databases]\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/$SP_UC_FIRST.ini
