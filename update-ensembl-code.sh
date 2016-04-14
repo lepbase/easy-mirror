@@ -114,7 +114,7 @@ do
   ID=$(echo $str | awk -F"_PLUGIN_URL" '{print $1}')
   BRANCH=$(awk -F "=" "/${ID}_PLUGIN_BRANCH/"'{print $2}' $INI | tr -d ' ' )
   PACKAGE=$(awk -F "=" "/${ID}_PLUGIN_PACKAGE/"'{print $2}' $INI | tr -d ' ' )
-  PLUGIN_STRINGS+=("  '$PACKAGE' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'/$NAME'")
+  PLUGIN_STRINGS+=("'$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/$NAME'")
   git_update $SERVER_ROOT/$NAME $URL $BRANCH
 done
 
@@ -158,7 +158,7 @@ if [ -s $SERVER_ROOT/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm ]; the
 fi
 
 # add mirror plugin to the top of Plugins.pm
-printf "\$SiteDefs::ENSEMBL_PLUGINS = [\n  'EnsEMBL::Mirror' => \$SiteDefs::ENSEMBL_SERVERROOT.'\/public-plugins/mirror'" > $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+printf "\$SiteDefs::ENSEMBL_PLUGINS = [\n  'EnsEMBL::Mirror' => \$SiteDefs::ENSEMBL_SERVERROOT.'/public-plugins/mirror'" > $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 
 # add plugins from repositories if specified
 for str in "${PLUGIN_STRINGS[@]}"
@@ -170,7 +170,7 @@ done
 if ! [ -z $EG_DIVISION ]; then
   EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
   EG_DIVISION_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_DIVISION_NAME:0:1})${EG_DIVISION_NAME:1}"
-  printf ",\n  'EG::$EG_DIVISION_NAME' => \$SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+  printf ",\n  'EG::$EG_DIVISION_NAME' => $SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::API' => \$SiteDefs::ENSEMBL_SERVERROOT.'/ensemblgenomes-api'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::Common' => \$SiteDefs::ENSEMBL_SERVERROOT.'/eg-web-common'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 fi
