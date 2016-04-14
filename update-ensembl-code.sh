@@ -114,7 +114,7 @@ do
   ID=$(echo $str | awk -F"_PLUGIN_URL" '{print $1}')
   BRANCH=$(awk -F "=" "/${ID}_PLUGIN_BRANCH/"'{print $2}' $INI | tr -d ' ' )
   PACKAGE=$(awk -F "=" "/${ID}_PLUGIN_PACKAGE/"'{print $2}' $INI | tr -d ' ' )
-  PLUGIN_STRINGS+=("  '$PACKAGE' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$NAME',")
+  PLUGIN_STRINGS+=("  '$PACKAGE' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'/$NAME'")
   git_update $SERVER_ROOT/$NAME $URL $BRANCH
 done
 
@@ -128,7 +128,6 @@ fi
 
 # move some *-dist files ready for editing
 cp $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini-dist $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
-cp $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm-dist $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 
 # set species core database connection parameters
 DB_HOST=$(awk -F "=" '/DB_HOST/ {print $2}' $INI | tr -d ' ')
@@ -158,22 +157,32 @@ if [ -s $SERVER_ROOT/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm ]; the
   perl -p -i -e 's/^(\s*.*CACHE_TAGS.*)/#$1/' $SERVER_ROOT/eg-web-common/modules/EnsEMBL/Web/Apache/Handlers.pm;
 fi
 
+# add mirror plugin to the top of Plugins.pm
+printf "\$SiteDefs::ENSEMBL_PLUGINS = [\n  'EnsEMBL::Mirror' => \$SiteDefs::ENSEMBL_SERVERROOT.'\/public-plugins/mirror'" > $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 
+# add plugins from repositories if specified
+for str in "${PLUGIN_STRINGS[@]}"
+do
+  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$str\n/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
+  printf ",\n  $str" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+done
 
 # add plugins if this is an ensemblgenomes site
 if ! [ -z $EG_DIVISION ]; then
   EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
   EG_DIVISION_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_DIVISION_NAME:0:1})${EG_DIVISION_NAME:1}"
-  EG_DIVISION_PLUGIN="  'EG::$EG_DIVISION_NAME' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/$EG_DIVISION',"
-  EG_API_PLUGIN="  'EG::API' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/ensemblgenomes-api',"
-  EG_COMMON_PLUGIN="  'EG::Common' => \\\$SiteDefs::ENSEMBL_SERVERROOT.'\/eg-web-common',"
-  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$EG_DIVISION_PLUGIN\n$EG_API_PLUGIN\n$EG_COMMON_PLUGIN/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
+  printf ",\n  'EG::$EG_DIVISION_NAME' => \$SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+  printf ",\n  'EG::API' => \$SiteDefs::ENSEMBL_SERVERROOT.'/ensemblgenomes-api'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+  printf ",\n  'EG::Common' => \$SiteDefs::ENSEMBL_SERVERROOT.'/eg-web-common'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 fi
 
-# add additional plugins if specified
-for str in "${PLUGIN_STRINGS[@]}"
+# add public plugins
+PUBLIC_PLUGINS=$(awk -F "=" '/PUBLIC_PLUGINS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+for PLUGIN in $PUBLIC_PLUGINS
 do
-  perl -p -i -e "s/(.*EnsEMBL::Mirror.*)/\$1\n$str\n/" $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm;
+  DIR=$(echo $PLUGIN | awk -F "|" '{print $1}' $INI | tr -d ' ' )
+  PACKAGE=$(echo $PLUGIN | awk -F "|" '{print $2}' $INI | tr -d ' ' )
+  printf ",\n  '$PACKAGE' => \$SiteDefs::ENSEMBL_SERVERROOT.'/public-plugins/$DIR'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 done
 
 # begin writing SiteDefs.pm
