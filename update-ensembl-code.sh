@@ -173,7 +173,7 @@ if ! [ -z $EG_DIVISION ]; then
   EG_DIVISION_NAME=`echo $EG_DIVISION | cut -d"-" -f 3`
   EG_DIVISION_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${EG_DIVISION_NAME:0:1})${EG_DIVISION_NAME:1}"
   PLUGIN_DIRS+=("$SERVER_ROOT/$EG_DIVISION")
-  printf ",\n  'EG::$EG_DIVISION_NAME' => $SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
+  printf ",\n  'EG::$EG_DIVISION_NAME' => \$SiteDefs::ENSEMBL_SERVERROOT.'/$EG_DIVISION'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::API' => \$SiteDefs::ENSEMBL_SERVERROOT.'/ensemblgenomes-api'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
   printf ",\n  'EG::Common' => \$SiteDefs::ENSEMBL_SERVERROOT.'/eg-web-common'" >> $SERVER_ROOT/ensembl-webcode/conf/Plugins.pm
 fi
