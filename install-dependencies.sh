@@ -36,7 +36,8 @@ apt-get install -y \
            libcurl4-openssl-dev \
            ttf-mscorefonts-installer \
            default-jre \
-           cpanminus
+           cpanminus \
+           vcftools
 
 # install most required perl modules using cpanminus
 cpanm  Archive::Zip \
@@ -117,6 +118,15 @@ wget http://www.cpan.org/modules/by-module/Apache2/$MODPERLVERSION.tar.gz
 tar xzf $MODPERLVERSION.tar.gz
 cd $MODPERLVERSION/
 perl Makefile.PL MP_APXS=/usr/local/apache2/bin/apxs
+make
+make install
+cd $CURRENTDIR
+
+# install Tabix.pm
+cd /tmp
+git clone https://github.com/samtools/tabix
+cd tabix/perl
+perl Makefile.PL
 make
 make install
 cd $CURRENTDIR
