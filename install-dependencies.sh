@@ -154,5 +154,6 @@ if ! [ -z $WEB_USER_NAME ]; then
   chown $WEB_USER_NAME:$WEB_USER_NAME $SERVER_ROOT
 else
   # change ownership of $SERVER_ROOT to $USER
-  chown $USER:$USER $SERVER_ROOT
+  ORIG_NAME=$(who am i | awk '{print $1}')
+  chown $ORIG_NAME:$ORIG_NAME $SERVER_ROOT
 fi
