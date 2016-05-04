@@ -92,7 +92,10 @@ cpanm  Archive::Zip \
        Lingua::EN::Inflect \
        YAML \
        Math::Round \
-       Rose::DB::Object::Manager
+       Rose::DB::Object::Manager \
+       Tree::DAG_Node \
+       Encode::Escape::ASCII \
+       IO::Unread
 
 # force install DBD::mysql as it will fail tests with default dbuser and password
 cpanm --force DBD::mysql
