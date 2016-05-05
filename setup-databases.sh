@@ -16,6 +16,8 @@ DB_USER=$(awk -F "=" '/DB_USER/ {print $2}' $INI | tr -d ' ')
 DB_PASS=$(awk -F "=" '/DB_PASS/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
+DB_IMPORT_USER=$(awk -F "=" '/DB_IMPORT_USER/ {print $2}' $INI | tr -d ' ')
+DB_IMPORT_PASS=$(awk -F "=" '/DB_IMPORT_PASS/ {print $2}' $INI | tr -d ' ')
 
 ROOT_CONNECT="mysql -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
 IMPORT_CONNECT="mysqlimport -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -h$DB_HOST -P$DB_PORT"
@@ -39,6 +41,9 @@ if [ -z $DB_SESSION_USER  ]; then
   printf "ERROR: No DB_SESSION_USER specified.\n       Unable to create ensembl_session/ensembl_accounts database\n"
   exit 1;
 fi
+if ! [ -z $DB_IMPORT_USER ]; then
+  IMPORT_USER_CREATE="GRANT CREATE, SELECT, INSERT, UPDATE, DELETE, LOCK TABLES ON *.* TO '$DB_IMPORT_USER'@'$ENSEMBL_WEBSITE_HOST' IDENTIFIED BY '$DB_IMPORT_PASS';"
+fi
 SESSION_USER_CREATE="GRANT SELECT, INSERT, UPDATE, DELETE, LOCK TABLES ON ensembl_accounts.* TO '$DB_SESSION_USER'@'$ENSEMBL_WEBSITE_HOST' IDENTIFIED BY '$DB_SESSION_PASS';"
 SESSION_USER_CREATE="$SESSION_USER_CREATE GRANT SELECT, INSERT, UPDATE, DELETE, LOCK TABLES ON ensembl_session.* TO '$DB_SESSION_USER'@'$ENSEMBL_WEBSITE_HOST';"
 if ! [ -z $DB_USER  ]; then
@@ -48,7 +53,7 @@ if ! [ -z $DB_USER  ]; then
   fi
   DB_USER_CREATE="$DB_USER_CREATE;"
 fi
-$ROOT_CONNECT -e "$SESSION_USER_CREATE$DB_USER_CREATE"
+$ROOT_CONNECT -e "$IMPORT_USER_CREATE$SESSION_USER_CREATE$DB_USER_CREATE"
 
 function load_db(){
   #load_db <remote_url> <db_name> [overwrite_flag]
