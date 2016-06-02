@@ -95,7 +95,8 @@ cpanm  Archive::Zip \
        Rose::DB::Object::Manager \
        Tree::DAG_Node \
        Encode::Escape::ASCII \
-       IO::Unread
+       IO::Unread \
+       Text::LevenshteinXS
 
 # force install DBD::mysql as it will fail tests with default dbuser and password
 cpanm --force DBD::mysql
