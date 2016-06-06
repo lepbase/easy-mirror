@@ -144,8 +144,8 @@ Database names to set up config files for/connect to
 * ``SPECIES_DBS`` - a space separated list of ensembl core dbs in square braces
 * ``SPECIES_DB_AUTO_EXPAND`` - to save listing all dbs for a given species this
   variable may be used to specify a set of replacement strings to attempt to
-  connect to (e.g. specify  ``SPECIES_DBS = [ homo_sapiens_core_83_38 ]`` and ``SPECIES_DB_AUTO_EXPAND = [ variation ]`` to also load the database
-  ``homo_sapiens_variation_83_38``, if it exists on ``DB_HOST`` or a
+  connect to (e.g. specify  ``SPECIES_DBS = [ homo_sapiens_core_84_38 ]`` and ``SPECIES_DB_AUTO_EXPAND = [ variation ]`` to also load the database
+  ``homo_sapiens_variation_84_38``, if it exists on ``DB_HOST`` or a
   ``DB_FALLBACK_HOST``
 * ``MULTI_DBS`` - a space separated list of multispecies databases in square
   braces
