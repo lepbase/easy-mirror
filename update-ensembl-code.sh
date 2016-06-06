@@ -352,3 +352,30 @@ do
     perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
   fi
 done
+
+# test/set connection parameters to each db in COMPARA_DBS
+COMPARA_DBS=$(awk -F "=" '/COMPARA_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+INDEX=1
+for DB in $COMPARA_DBS
+do
+  species_db_fallback $DB
+  if ! [ $DB_CONNECT_RESULT -eq 0 ]; then
+    echo "WARNING: unable to connect to database $DB"
+  else
+    echo "Connection to $DB on $TEST_HOST successful"
+    LC_COLLATE=C
+    if [ $INDEX = 1 ]; then
+      UC_TYPE="COMPARA"
+    else
+      if [ $INDEX = 2 ]; then
+        UC_TYPE="COMPARA_PAN_ENSEMBL"
+      fi
+    else
+      echo "WARNING: nothing to be done with database $DB"
+    fi
+    # add database connection parameters to Genus_species.ini
+    printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+  fi
+  INDEX=$INDEX+1
+done
