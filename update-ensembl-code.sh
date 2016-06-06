@@ -349,7 +349,7 @@ do
     fi
     # add database connection parameters to Genus_species.ini
     printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
   fi
 done
 
@@ -364,10 +364,10 @@ do
   else
     echo "Connection to $DB on $TEST_HOST successful"
     LC_COLLATE=C
-    if [ $INDEX = 1 ]; then
+    if [ $INDEX -eq 1 ]; then
       UC_TYPE="COMPARA"
     else
-      if [ $INDEX = 2 ]; then
+      if [ $INDEX -eq 2 ]; then
         UC_TYPE="COMPARA_PAN_ENSEMBL"
       else
         echo "WARNING: nothing to be done with database $DB"
@@ -375,7 +375,7 @@ do
     fi
     # add database connection parameters to Genus_species.ini
     printf "\n[DATABASE_$UC_TYPE]\nHOST = $TEST_HOST\nPORT = $TEST_PORT\nUSER = $TEST_USER\nPASS = $TEST_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
-    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $NEW_DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+    perl -p -i -e "s/(.OTHER_DATABASES)/DATABASE_$UC_TYPE = $DB\n\$1/" $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
   fi
   INDEX=$INDEX+1
 done
