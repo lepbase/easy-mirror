@@ -307,7 +307,7 @@ printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 printf "\n[general]\n$DEFAULT_FAVOURITES" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 # set multi-species database connection parameters
-printf "[DATABASES]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n#OTHER_DATABASES\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[databases]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n#OTHER_DATABASES\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
