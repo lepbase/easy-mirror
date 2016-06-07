@@ -28,7 +28,7 @@ function db_connection_test(){
   # species_db_fallback <db-name> <host> <port> <user> <pass>
   DB_CONNECT="mysql -h$2 -P$3 -u$4 $1"
   if ! [ -z $5 ]; then
-    DB_CONNECT="$DB_CONNECT -p "
+    DB_CONNECT="$DB_CONNECT -p $5"
   fi
   $DB_CONNECT -e "" &> /dev/null;
   DB_CONNECT_RESULT=$?
