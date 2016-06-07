@@ -307,12 +307,24 @@ printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 printf "\n[general]\n$DEFAULT_FAVOURITES" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/DEFAULTS.ini
 
 # set multi-species database connection parameters
-printf "[databases]\n  DATABASE_SESSION = ensembl_session\n  DATABASE_ACCOUNTS = ensembl_accounts\n#OTHER_DATABASES\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+printf "[databases]\n" > $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 DB_SESSION_HOST=$(awk -F "=" '/DB_SESSION_HOST/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PORT=$(awk -F "=" '/DB_SESSION_PORT/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_USER=$(awk -F "=" '/DB_SESSION_USER/ {print $2}' $INI | tr -d ' ')
 DB_SESSION_PASS=$(awk -F "=" '/DB_SESSION_PASS/ {print $2}' $INI | tr -d ' ')
+
+db_connection_test DATABASE_SESSION $DB_SESSION_HOST $DB_SESSION_PORT $DB_SESSION_USER $DB_SESSION_PASS
+if [ $DB_CONNECT_RESULT -eq 0 ]; then
+  printf "  DATABASE_SESSION = ensembl_session\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+fi
+
+db_connection_test DATABASE_ACCOUNTS $DB_SESSION_HOST $DB_SESSION_PORT $DB_SESSION_USER $DB_SESSION_PASS
+if [ $DB_CONNECT_RESULT -eq 0 ]; then
+  printf "  DATABASE_ACCOUNTS = ensembl_accounts\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+fi
+printf "#OTHER_DATABASES\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
+
 printf "\n[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 printf "\n[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 
