@@ -96,7 +96,8 @@ cpanm  Archive::Zip \
        Tree::DAG_Node \
        Encode::Escape::ASCII \
        IO::Unread \
-       Text::LevenshteinXS
+       Text::LevenshteinXS \
+       Math::SigFigs
 
 # force install DBD::mysql as it will fail tests with default dbuser and password
 cpanm --force DBD::mysql
