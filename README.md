@@ -1,4 +1,4 @@
-# EnsEMBL Easy
+# easy-mirror
 
 Code to make it easy to install an [EnsEMBL](http://ensembl.org) webserver on a
   fresh install of Ubuntu 14.04. The scripts in this repository will fetch
@@ -7,7 +7,11 @@ Code to make it easy to install an [EnsEMBL](http://ensembl.org) webserver on a
   minimum footprint, entirely locally hosted data for maximum performance or
   anywhere in between.
 
-[![DOI](https://zenodo.org/badge/20772/lepbase/ensembl-easy.svg)](https://zenodo.org/badge/latestdoi/20772/lepbase/ensembl-easy)
+This is a sister project to [easy-import](https://github.com/lepbase/easy-import),
+  which simplifies the import of genomic data for any species from standard flat
+  files into the Ensembl database schema. The latest and most complete
+  documentation for both projects is available at
+  [easy-import.readme.io](http://easy-import.readme.io)
 
 ## Quick instructions
 
@@ -27,8 +31,8 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install git
 cd ~
-git clone https://bitbucket.org/lepbase/ensembl-easy ee
-cd ee
+git clone https://github.com/lepbase/easy-mirror em
+cd em
 sudo ./install-dependencies.sh example.ini
 ```
 
