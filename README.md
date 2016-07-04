@@ -1,5 +1,7 @@
 # easy-mirror
 
+[![DOI](https://zenodo.org/badge/20772/lepbase/easy-mirror.svg)](https://zenodo.org/badge/latestdoi/20772/lepbase/easy-mirror)
+
 Code to make it easy to install an [EnsEMBL](http://ensembl.org) webserver on a
   fresh install of Ubuntu 14.04. The scripts in this repository will fetch
   dependencies and configure a local mirror of Ensembl/EnsemblGenomes with any
