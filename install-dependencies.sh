@@ -73,6 +73,7 @@ cpanm  Archive::Zip \
        HTML::Entities \
        IO::Uncompress::Bunzip2 \
        XML::Parser \
+       XML::Simple \
        XML::Writer \
        SOAP::Lite \
        GD \
