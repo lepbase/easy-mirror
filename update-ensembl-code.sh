@@ -252,7 +252,7 @@ do
   DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES $SP_UC_FIRST"
 
   # add/copy species images and about pages
-  for PLUGIN_DIR in $PLUGIN_DIRS
+  for PLUGIN_DIR in ${PLUGIN_DIRS[@]}
   do
     if [ -e "$PLUGIN_DIR/htdocs/i/species/16/$SP_UC_FIRST.png" ]; then
       cp $PLUGIN_DIR/htdocs/i/species/16/$SP_UC_FIRST.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
