@@ -232,7 +232,7 @@ fi
 echo "  map {delete(\$SiteDefs::__species_aliases{\$_}) } keys %SiteDefs::__species_aliases;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_PRIMARY_SPECIES    = '$PRIMARY_SP'; # Default species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 echo "  \$SiteDefs::ENSEMBL_SECONDARY_SPECIES  = '$SECONDARY_SP'; # Secondary species" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
-DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = ["
+DEFAULT_FAVOURITES=""
 # loop through all SPECIES_DBS to test DB connections and generate config files
 for DB in $SPECIES_DBS
 do
@@ -298,7 +298,8 @@ do
   done
 
 done
-DEFAULT_FAVOURITES="$DEFAULT_FAVOURITES ]"
+echo "  \$SiteDefs::ENSEMBL_DATASETS = [qw($DEFAULT_FAVOURITES)];" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
+DEFAULT_FAVOURITES="DEFAULT_FAVOURITES = [$DEFAULT_FAVOURITES ]"
 
 # finish writing SiteDefs.pm
 printf "}\n\n1;\n" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm

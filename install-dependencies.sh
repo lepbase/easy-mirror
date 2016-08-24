@@ -138,6 +138,17 @@ make
 make install
 cd $CURRENTDIR
 
+# install Htslib.pm
+cd /tmp
+git clone https://github.com/samtools/htslib
+cd htslib
+make
+make install
+cd $CURRENTDIR
+
+# install Bio::DB::HTS::Tabix using cpanminus
+cpanm  Bio::DB::HTS::Tabix
+
 # create symbolic link to perl binary in location referenced by ensembl scripts
 ln -s /usr/bin/perl /usr/local/bin/perl
 
