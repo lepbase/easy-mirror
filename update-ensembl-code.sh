@@ -203,10 +203,14 @@ echo "  \$SiteDefs::APACHE_BIN = '/usr/local/apache2/bin/httpd';" >> $SERVER_ROO
 echo "  \$SiteDefs::ENSEMBL_PORT = $HTTP_PORT;" >> $SERVER_ROOT/public-plugins/mirror/conf/SiteDefs.pm
 
 # create directories for species/placeholder images
+PLACEHOLDER=$(awk -F "=" '/PLACEHOLDER/ {print $2}' $INI | tr -d ' ')
+if [ -z $PLACEHOLDER ]; then
+  PLACEHOLDER=placeholder
+fi
 mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16
 mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48
 mkdir -p $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64
-cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/placeholder.png
+cp $PLACEHOLDER-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/placeholder.png
 
 # set DB_FALLBACK variables
 DB_FALLBACK_HOST=$(awk -F "=" '/DB_FALLBACK_HOST/ {print $2}' $INI | tr -d ' ')
@@ -266,13 +270,13 @@ do
     fi
   done
   if ! [ -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png ]; then
-    cp placeholder-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
+    cp $PLACEHOLDER-16.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/16/$SP_UC_FIRST.png
   fi
   if ! [ -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png ]; then
-    cp placeholder-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
+    cp $PLACEHOLDER-48.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/48/$SP_UC_FIRST.png
   fi
   if ! [ -e $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png ]; then
-    cp placeholder-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
+    cp $PLACEHOLDER-64.png $SERVER_ROOT/public-plugins/mirror/htdocs/i/species/64/$SP_UC_FIRST.png
   fi
 
   # create a Genus_species.ini file in mirror/conf/ini-files
