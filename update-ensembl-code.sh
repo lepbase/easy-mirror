@@ -220,7 +220,7 @@ DB_FALLBACK2_PASS=$(awk -F "=" '/DB_FALLBACK2_PASS/ {print $2}' $INI | tr -d ' '
 
 
 # use SPECIES_DBS to populate Primary/Secondary species
-SPECIES_DBS=$(awk -F "=" '/SPECIES_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+SPECIES_DBS=$(perl -lne '$s.=$_;END{if ($s=~m/SPECIES_DBS\s*=\s*\[\s*(.+?)\s*\]/){print $1}}' $INI)
 SPECIES_DB_AUTO_EXPAND=$(awk -F "=" '/SPECIES_DB_AUTO_EXPAND/ {print $2}' $INI | tr -d '[' | tr -d ']')
 PRIMARY_SP=`echo $SPECIES_DBS | cut -d' ' -f 1 | awk -F'_core_' '{print $1}'`
 PRIMARY_SP="$(tr '[:lower:]' '[:upper:]' <<< ${PRIMARY_SP:0:1})${PRIMARY_SP:1}"
@@ -330,7 +330,7 @@ printf "\n[DATABASE_SESSION]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_H
 printf "\n[DATABASE_ACCOUNTS]\n  USER = $DB_SESSION_USER \n  HOST = $DB_SESSION_HOST\n  PORT = $DB_SESSION_PORT\n  PASS = $DB_SESSION_PASS\n" >> $SERVER_ROOT/public-plugins/mirror/conf/ini-files/MULTI.ini
 
 # test/set connection parameters to each db in MULTI_DBS
-MULTI_DBS=$(awk -F "=" '/MULTI_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+MULTI_DBS=$(perl -lne '$s.=$_;END{if ($s=~m/MULTI_DBS\s*=\s*\[\s*(.+?)\s*\]/){print $1}}' $INI)
 for DB in $MULTI_DBS
 do
   species_db_fallback $DB
@@ -367,7 +367,7 @@ do
 done
 
 # test/set connection parameters to each db in COMPARA_DBS
-COMPARA_DBS=$(awk -F "=" '/COMPARA_DBS/ {print $2}' $INI | tr -d '[' | tr -d ']')
+COMPARA_DBS=$(perl -lne '$s.=$_;END{if ($s=~m/COMPARA_DBS\s*=\s*\[\s*(.+?)\s*\]/){print $1}}' $INI)
 INDEX=1
 for DB in $COMPARA_DBS
 do
