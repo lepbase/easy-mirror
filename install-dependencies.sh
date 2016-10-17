@@ -27,7 +27,7 @@ apt-get install -y \
            make \
            curl \
            gcc \
-           php5-gd \
+           php-gd \
            freetype* \
            libgd2-xpm-dev \
            openssl \
